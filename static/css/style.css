@@ -1,0 +1,16 @@
+
+body *{ font-family: Tahoma, sans-serif;}
+
+table, th, td {
+    border:1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+    table-layout:fixed;
+    width: 800px;
+    text-align: left;
+}
+  
+tr:nth-child(even) {
+    background-color: #c3f3f8;
+}
+

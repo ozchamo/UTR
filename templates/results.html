@@ -1,0 +1,31 @@
+{# templates/results.html #}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+</head>
+
+<body>
+  <h1>Player Search Results - UTR</h1>
+  <HR>
+ 
+  <TABLE>  
+    <TR style="height:30px">
+      <TH style="width:10%">UTR</TH>
+      <TH style="width:40%">PLAYER NAME </TH>
+      <TH style="width:50%">LOCATION</TH> 
+    </TR>
+    {% for player in playerlist %}
+    <TR style="height:30px">
+      <TD>{{ player[2] }} </TD>
+      <TD>{{ player[0] }} </TD>
+      <TD>{{ player[1] }} </TD> 
+    </TR>
+  {% endfor %}
+</TABLE
+</body>
+</html>
