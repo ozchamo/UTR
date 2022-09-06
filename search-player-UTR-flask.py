@@ -109,6 +109,7 @@ def present_search_player_results():
         playerlist.extend(retrieve_player(player, location="Australia" ))
 
     # We reorder the list by UTR
+    print(playerlist)
     playerlist.sort(key=lambda x:x[2], reverse=True)    
     return render_template('results.html', playerlist = playerlist)
 
