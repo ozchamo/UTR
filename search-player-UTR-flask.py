@@ -3,10 +3,10 @@
 # APIs at https://blakestevenson.github.io/utr-api-docs/
 # API endpoint is https://agw-prod.myutr.com
 
-import urllib3
 import json
 import os
 import sys
+import urllib3
 from flask import Flask, render_template, redirect, request, url_for, make_response
 
 debug="no" 
