@@ -1,5 +1,3 @@
-#!/bin/python3
-
 # APIs at https://blakestevenson.github.io/utr-api-docs/
 # API endpoint is https://agw-prod.myutr.com
 
