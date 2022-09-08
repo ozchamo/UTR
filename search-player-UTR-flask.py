@@ -8,9 +8,10 @@ import sys
 import urllib3
 from flask import Flask, render_template, redirect, request, url_for, make_response
 
-debug="no" 
+#DUMMY
+country="Australia"
 
-def retrieve_player(fullname, location = ""):
+def retrieve_player(fullname, location = "", dump="no"):
 
     #defining it to return it
     playerlist = []
@@ -53,6 +54,10 @@ def retrieve_player(fullname, location = ""):
             "Authorization": "Bearer " + utr_token
         }
         response = http.request('GET', api_url, fields={"query":searchname}, headers = headers)
+
+    if dump == "yes":
+        # This is used in "dump_player_info" only
+        return json.loads(response.data)
 
     playerinfo = json.loads(response.data.decode("utf-8"))
     
@@ -106,15 +111,33 @@ def present_search_player_results():
     for player in textplayerlist:
         if player == '':
             continue
-        playerlist.extend(retrieve_player(player, location="Australia" ))
+        playerlist.extend(retrieve_player(player, location = country))
 
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
     return render_template('results.html', playerlist = playerlist)
 
+@app.route('/dump_player_info')
+def present_dump_player_form():
+    return render_template('dumpplayerinfo.html')
+
+@app.route('/dump_player_post', methods=['POST'])
+def present_dump_player_results():
+    playerlist =[]
+    textplayerlist = request.form['playername'].split("\r\n")
+    
+    for player in textplayerlist:
+        if player == '':
+            continue
+        # Note that the yes at the end changes the output of retrieve_player to dump json for one player
+        playerinfo=retrieve_player(player, country, "yes" )
+
+    if playerinfo == "":
+        playerinfo = "Player not found"
+    else:
+          playerinfo = json.dumps(playerinfo, indent=2)
+   
+    return render_template('dumpresults.html', playerinfo = playerinfo)
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'debug':
-            debug="yes"
     app.run(host="0.0.0.0")
