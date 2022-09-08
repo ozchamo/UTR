@@ -45,8 +45,6 @@ def retrieve_player(fullname, location = ""):
     else:
         searchname = fullnameaslist
     
-    print(fullnameaslist)
-
     if utr_token == "":
         response = http.request('GET', api_url, fields={"query":searchname})
     else:
@@ -77,17 +75,19 @@ def retrieve_player(fullname, location = ""):
         except:
             playerlocation = "Unknown"
 
-        print(playername)
         if utr_token == "":
                 playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
         else:
                 playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
+        
+        if playerrating == None:
+            playerrating = "N/A"
 
         if playerlocation.find(location) != -1:
             # If there is a location parameter match we add to the list, else ignore
+            print("Adding player: " + str((playername, playerlocation, playerrating)))
             playerlist.append((playername, playerlocation, playerrating))
 
-    print(playerlist)
     return playerlist
 
 # =========================================================================
@@ -109,7 +109,6 @@ def present_search_player_results():
         playerlist.extend(retrieve_player(player, location="Australia" ))
 
     # We reorder the list by UTR
-    print(playerlist)
     playerlist.sort(key=lambda x:x[2], reverse=True)    
     return render_template('results.html', playerlist = playerlist)
 
