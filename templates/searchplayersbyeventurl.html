@@ -1,0 +1,17 @@
+{# templates/searchplayersbyeventurl.html #}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Player Info Dump</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+</head>
+
+<H1>UTR Search by event URL (tournaments.tennis.com.au):</H1>
+<HR>
+<form method="post" action="/search_player_eventurl_post">
+<textarea name="eventurl" id="comments" rows=1 cols=80></textarea><br><br>
+<input type="submit" value="Submit" />
+</form>

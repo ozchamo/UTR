@@ -6,12 +6,16 @@ import json
 import os
 import sys
 import urllib3
+from bs4 import BeautifulSoup
+import re
 from flask import Flask, render_template, redirect, request, url_for, make_response
 
-#DUMMY
-country="Australia"
+location = ""
+ignoreunrated = "no"
 
-def retrieve_player(fullname, location = "", dump="no"):
+def retrieve_player(fullname, dump="no"):
+
+    global location
 
     #defining it to return it
     playerlist = []
@@ -84,9 +88,12 @@ def retrieve_player(fullname, location = "", dump="no"):
                 playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
         else:
                 playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
-        
-        if playerrating == None:
-            playerrating = "N/A"
+
+        if playerrating == None or playerrating == "0.00"  or playerrating == "0.xx":
+            if ignoreunrated == "yes":
+                continue
+            else:
+                playerrating = "N/A"
 
         if playerlocation.find(location) != -1:
             # If there is a location parameter match we add to the list, else ignore
@@ -96,14 +103,52 @@ def retrieve_player(fullname, location = "", dump="no"):
     return playerlist
 
 # =========================================================================
+# Search menu
+#=======================================================================
 
 app = Flask(__name__)
 
 @app.route('/')
 def present_search_player_form():
-    return render_template('searchpage.html')
+    return render_template('searchoptions.html')
 
-@app.route('/search_player_post', methods=['POST'])
+@app.route('/navigate_search_selection', methods=['POST'])
+def navigate_search_selection():
+
+    global location 
+    global ignoreunrated 
+
+    try:
+        if request.form['location'] == "australiaonly":
+            location = "Australia"
+    except:
+        location = ""
+
+    try:
+        if request.form['ignoreunrated'] == "yes":
+            ignoreunrated = "yes"
+    except:
+        ignoreunrated = "no"
+       
+    searchselection = request.form['searchoption']
+    
+    if searchselection == "searchbynamelist":
+        return(render_template('searchplayersbynames.html'))
+    if searchselection == "searchbyurl":
+        return(render_template('searchplayersbyeventurl.html'))
+    if searchselection == "searchplayerjson":
+        return(render_template('dumpplayerinfo.html'))
+
+
+#=======================================================================
+# Search by name list
+#=======================================================================
+
+@app.route('/search_player_names')
+def present_search_player_by_names():
+    return render_template('searchplayersbynames.html')
+
+@app.route('/search_player_names_post', methods=['POST'])
 def present_search_player_results():
     playerlist =[]
     textplayerlist = request.form['playernamelist'].split("\r\n")
@@ -111,12 +156,42 @@ def present_search_player_results():
     for player in textplayerlist:
         if player == '':
             continue
-        playerlist.extend(retrieve_player(player, location = country))
+        playerlist.extend(retrieve_player(player))
 
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
     return render_template('results.html', playerlist = playerlist)
 
+
+#=======================================================================
+# Search player list by URL
+#=======================================================================
+@app.route('/search_player_url')
+def present_search_player_by_url():
+    return render_template('searchplayersbyeventurl.html')
+
+@app.route('/search_player_eventurl_post', methods=['POST'])
+def present_search_player_url_results():
+    playerlist =[]
+
+    http = urllib3.PoolManager()
+    response = http.request('GET', request.form['eventurl'])
+    soup = BeautifulSoup(response.data, 'html.parser')
+    
+    for playerlink in soup.find_all("a", href=re.compile("player.aspx?")):
+        print(playerlink.get_text())
+        playerlist.extend(retrieve_player(playerlink.get_text()))
+    
+    playerlist.sort(key=lambda x:x[2], reverse=True)    
+    return render_template('results.html', playerlist = playerlist)
+
+
+    return render_template('results.html')
+
+
+#=======================================================================
+# Dump JSON for single player
+#=======================================================================
 @app.route('/dump_player_info')
 def present_dump_player_form():
     return render_template('dumpplayerinfo.html')
@@ -130,7 +205,7 @@ def present_dump_player_results():
         if player == '':
             continue
         # Note that the yes at the end changes the output of retrieve_player to dump json for one player
-        playerinfo=retrieve_player(player, country, "yes" )
+        playerinfo=retrieve_player(player, "yes" )
 
     if playerinfo == "":
         playerinfo = "Player not found"
@@ -138,6 +213,8 @@ def present_dump_player_results():
           playerinfo = json.dumps(playerinfo, indent=2)
    
     return render_template('dumpresults.html', playerinfo = playerinfo)
+
+#=======================================================================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
