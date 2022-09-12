@@ -1,4 +1,4 @@
 Flask
 urllib3
-BeatifulSoup
+BeautifulSoup
 re
