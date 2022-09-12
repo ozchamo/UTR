@@ -22,7 +22,7 @@
     {% for player in playerlist %}
     <TR style="height:30px">
       <TD>{{ player[2] }} </TD>
-      <TD>{{ player[0] }} </TD>
+      <TD><A HREF="https://app.universaltennis.com/profiles/{{ player[3] }}">{{ player[0] }}</A></TD>
       <TD>{{ player[1] }} </TD> 
     </TR>
   {% endfor %}

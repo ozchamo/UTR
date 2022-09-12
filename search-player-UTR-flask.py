@@ -95,10 +95,12 @@ def retrieve_player(fullname, dump="no"):
             else:
                 playerrating = "N/A"
 
+        playerid = playerinfo["hits"][hit]["source"]["id"]
+
         if playerlocation.find(location) != -1:
             # If there is a location parameter match we add to the list, else ignore
-            print("Adding player: " + str((playername, playerlocation, playerrating)))
-            playerlist.append((playername, playerlocation, playerrating))
+            print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
+            playerlist.append((playername, playerlocation, playerrating, playerid))
 
     return playerlist
 
@@ -184,9 +186,6 @@ def present_search_player_url_results():
     
     playerlist.sort(key=lambda x:x[2], reverse=True)    
     return render_template('results.html', playerlist = playerlist)
-
-
-    return render_template('results.html')
 
 
 #=======================================================================

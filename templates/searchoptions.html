@@ -14,15 +14,15 @@
 <form method="post" action="/navigate_search_selection">
   <input type="radio" name="searchoption" id="option1" value="searchbynamelist">
   <label for="option1">Name list as text</label><br>
-  <input type="radio" name="searchoption" id="option2" value="searchbyurl">
+  <input type="radio" name="searchoption" id="option2" value="searchbyurl" checked>
   <label for="option2">URL to tournament event (tournaments.tennis.com.au)</label><br>
   <input type="radio" name="searchoption" id="option3" value="searchplayerjson">
   <label for="option3">Dump JSON for a single player</label><br>
   
   <HR>
   
-  <input type="checkbox" name="location" value="australiaonly">Limit search to "Australia" only<br>
-  <input type="checkbox" name="ignoreunrated" value="yes">Ignore unrated/0.xx players<br>
+  <input type="checkbox" name="location" value="australiaonly" checked>Limit search to "Australia" only<br>
+  <input type="checkbox" name="ignoreunrated" value="yes" checked>Ignore unrated/0.xx players<br>
   
   <HR>
   <input type="submit" value="Submit" />
