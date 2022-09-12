@@ -6,7 +6,7 @@ import json
 import os
 import sys
 import urllib3
-from bs4 import BeautifulSoup
+from beatifulsoup4 import BeautifulSoup
 import re
 from flask import Flask, render_template, redirect, request, url_for, make_response
 

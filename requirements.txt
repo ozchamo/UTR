@@ -1,4 +1,4 @@
 Flask
 urllib3
-bs4
+beatifulsoup4
 re
