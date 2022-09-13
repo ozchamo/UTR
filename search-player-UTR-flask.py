@@ -144,9 +144,9 @@ def navigate_search_selection():
     searchselection = request.form['searchoption']
     
     if searchselection == "searchbynamelist":
-        return(render_template('searchplayersbynames.html', header="UTR Group Search by names"))
+        return(render_template('searchplayersbynames.html', header="UTR Group Search by Player Name(s)"))
     if searchselection == "searchbyurl":
-        return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by event URL"))
+        return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by Event URL"))
     if searchselection == "searchplayerjson":
         return(render_template('dumpplayerinfo.html', header = "UTR Single player JSON download"))
 

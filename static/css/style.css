@@ -1,5 +1,5 @@
 
-body *{ font-family: Tahoma, sans-serif;}
+body *{ font-family: Tahoma, sans-serif; margin-left:8px; margin-right:10px; }
 
 table, th, td {
     border:1px solid black;
@@ -15,6 +15,6 @@ tr:nth-child(even) {
 }
 
 .box {
-   display: flex;
+  display: flex;
   align-items:center;
 }  
