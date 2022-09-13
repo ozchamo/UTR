@@ -69,7 +69,9 @@ def retrieve_player(fullname, dump="no"):
 
     if hitcount == 0:
         # Player does not exist in the DB
-        playerlist.append((searchname, "Player not found in UTR database", 0.00))
+        if ignoreunrated == "no":
+            playerrating = "0.00"
+            playerlist.append((searchname, "Player not found in UTR database", 0.00))
         return(playerlist)
 
     if hitcount > 100:
@@ -93,11 +95,12 @@ def retrieve_player(fullname, dump="no"):
         else:
                 playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
 
-        if playerrating == None or playerrating == "0.00"  or playerrating == "0.xx":
+        if playerrating == None or playerrating == "0.00" or playerrating == "0.xx":
             if ignoreunrated == "yes":
                 continue
             else:
                 playerrating = "0.00"
+
         playerratingfloat = float(playerrating)
 
         playerid = playerinfo["hits"][hit]["source"]["id"]
@@ -106,7 +109,6 @@ def retrieve_player(fullname, dump="no"):
             # If there is a location parameter match we add to the list, else ignore
             print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
             playerlist.append((playername, playerlocation, playerratingfloat, playerid))
-            #playerlist.append((playername, playerlocation, playerrating, playerid))
 
     return playerlist
 
