@@ -72,6 +72,10 @@ def retrieve_player(fullname, dump="no"):
         playerlist.append((searchname, "Player not found in UTR database", "0.00"))
         return(playerlist)
 
+    if hitcount > 100:
+        print ("More than 100 records found - restricting to 100 hits")
+        hitcount = 100
+
     for hit in range(hitcount):        
   
         try:
@@ -83,7 +87,7 @@ def retrieve_player(fullname, dump="no"):
             playerlocation = playerinfo["hits"][hit]["source"]["location"]["display"]
         except:
             playerlocation = "Unknown"
-
+        
         if utr_token == "":
                 playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
         else:
@@ -93,14 +97,16 @@ def retrieve_player(fullname, dump="no"):
             if ignoreunrated == "yes":
                 continue
             else:
-                playerrating = "N/A"
+                playerrating = "0.00"
+        playerratingfloat = float(playerrating)
 
         playerid = playerinfo["hits"][hit]["source"]["id"]
 
         if playerlocation.find(location) != -1:
             # If there is a location parameter match we add to the list, else ignore
             print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
-            playerlist.append((playername, playerlocation, playerrating, playerid))
+            playerlist.append((playername, playerlocation, playerratingfloat, playerid))
+            #playerlist.append((playername, playerlocation, playerrating, playerid))
 
     return playerlist
 
@@ -108,11 +114,11 @@ def retrieve_player(fullname, dump="no"):
 # Search menu
 #=======================================================================
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 
 @app.route('/')
 def present_search_player_form():
-    return render_template('searchoptions.html')
+    return render_template('searchoptions.html', header = "UTR Group Search options")
 
 @app.route('/navigate_search_selection', methods=['POST'])
 def navigate_search_selection():
@@ -148,7 +154,7 @@ def navigate_search_selection():
 
 @app.route('/search_player_names')
 def present_search_player_by_names():
-    return render_template('searchplayersbynames.html')
+    return render_template('searchplayersbynames.html', header="UTR Group Search by names")
 
 @app.route('/search_player_names_post', methods=['POST'])
 def present_search_player_results():
@@ -170,7 +176,7 @@ def present_search_player_results():
 #=======================================================================
 @app.route('/search_player_url')
 def present_search_player_by_url():
-    return render_template('searchplayersbyeventurl.html')
+    return render_template('searchplayersbyeventurl.html', header = "UTR Group Search by event URL")
 
 @app.route('/search_player_eventurl_post', methods=['POST'])
 def present_search_player_url_results():
@@ -193,7 +199,7 @@ def present_search_player_url_results():
 #=======================================================================
 @app.route('/dump_player_info')
 def present_dump_player_form():
-    return render_template('dumpplayerinfo.html')
+    return render_template('dumpplayerinfo.html', header = "SIngle player JSON download")
 
 @app.route('/dump_player_post', methods=['POST'])
 def present_dump_player_results():

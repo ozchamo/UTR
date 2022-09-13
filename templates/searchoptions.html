@@ -9,9 +9,12 @@
   <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
 </head>
 
-<IMG SRC="utrlogo.png">
-<H1>UTR Search Options:</H1>
-<HR>
+<div class="box">
+  <img src="/static/utrlogo.png" height="60">
+  <span><H1>{{ header }}</H1></span>
+</div>
+<HR><BR>
+
 <form method="post" action="/navigate_search_selection">
   <input type="radio" name="searchoption" id="option1" value="searchbynamelist">
   <label for="option1">Name list as text</label><br>
@@ -20,12 +23,12 @@
   <input type="radio" name="searchoption" id="option3" value="searchplayerjson">
   <label for="option3">Dump JSON for a single player</label><br>
   
-  <HR>
+  <BR><HR><BR>
   
   <input type="checkbox" name="location" value="australiaonly" checked>Limit search to "Australia" only<br>
   <input type="checkbox" name="ignoreunrated" value="yes" checked>Ignore unrated/0.xx players<br>
   
-  <HR>
+  <BR><HR><BR>
   <input type="submit" value="Submit" />
 
 </form>

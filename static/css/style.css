@@ -14,3 +14,7 @@ tr:nth-child(even) {
     background-color: #c3f3f8;
 }
 
+.box {
+   display: flex;
+  align-items:center;
+}  
