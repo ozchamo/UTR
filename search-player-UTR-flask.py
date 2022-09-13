@@ -69,7 +69,7 @@ def retrieve_player(fullname, dump="no"):
 
     if hitcount == 0:
         # Player does not exist in the DB
-        playerlist.append((searchname, "Player not found in UTR database", "0.00"))
+        playerlist.append((searchname, "Player not found in UTR database", 0.00))
         return(playerlist)
 
     if hitcount > 100:
