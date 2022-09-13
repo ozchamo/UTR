@@ -190,13 +190,15 @@ def present_search_player_url_results():
     http = urllib3.PoolManager()
     response = http.request('GET', request.form['eventurl'])
     soup = BeautifulSoup(response.data, 'html.parser')
+
+    eventname = soup.find('title').string
     
     for playerlink in soup.find_all("a", href=re.compile("player.aspx?")):
         print(playerlink.get_text())
         playerlist.extend(retrieve_player(playerlink.get_text()))
     
     playerlist.sort(key=lambda x:x[2], reverse=True)    
-    return render_template('results.html', playerlist = playerlist, header = "Search Results")
+    return render_template('results.html', playerlist = playerlist, header = "Search Results", eventname = eventname)
 
 
 #=======================================================================
