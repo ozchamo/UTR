@@ -110,11 +110,14 @@ def retrieve_player(fullname, dump="no"):
 
     return playerlist
 
+
+# We define the Flask app!
+app = Flask(__name__, static_url_path='/static')
+
+
 # =========================================================================
 # Search menu
 #=======================================================================
-
-app = Flask(__name__, static_url_path='/static')
 
 @app.route('/')
 def present_search_player_form():
@@ -141,11 +144,11 @@ def navigate_search_selection():
     searchselection = request.form['searchoption']
     
     if searchselection == "searchbynamelist":
-        return(render_template('searchplayersbynames.html'))
+        return(render_template('searchplayersbynames.html', header="UTR Group Search by names"))
     if searchselection == "searchbyurl":
-        return(render_template('searchplayersbyeventurl.html'))
+        return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by event URL"))
     if searchselection == "searchplayerjson":
-        return(render_template('dumpplayerinfo.html'))
+        return(render_template('dumpplayerinfo.html', header = "UTR Single player JSON download"))
 
 
 #=======================================================================
@@ -154,8 +157,8 @@ def navigate_search_selection():
 
 @app.route('/search_player_names')
 def present_search_player_by_names():
-    return render_template('searchplayersbynames.html', header="UTR Group Search by names")
-
+    return render_template('searchplayersbynames.html')
+ 
 @app.route('/search_player_names_post', methods=['POST'])
 def present_search_player_results():
     playerlist =[]
@@ -168,7 +171,7 @@ def present_search_player_results():
 
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
-    return render_template('results.html', playerlist = playerlist)
+    return render_template('results.html', playerlist = playerlist, header = "Search Results")
 
 
 #=======================================================================
@@ -176,7 +179,7 @@ def present_search_player_results():
 #=======================================================================
 @app.route('/search_player_url')
 def present_search_player_by_url():
-    return render_template('searchplayersbyeventurl.html', header = "UTR Group Search by event URL")
+    return render_template('searchplayersbyeventurl.html')
 
 @app.route('/search_player_eventurl_post', methods=['POST'])
 def present_search_player_url_results():
@@ -191,7 +194,7 @@ def present_search_player_url_results():
         playerlist.extend(retrieve_player(playerlink.get_text()))
     
     playerlist.sort(key=lambda x:x[2], reverse=True)    
-    return render_template('results.html', playerlist = playerlist)
+    return render_template('results.html', playerlist = playerlist, header = "Search Results")
 
 
 #=======================================================================
@@ -199,7 +202,7 @@ def present_search_player_url_results():
 #=======================================================================
 @app.route('/dump_player_info')
 def present_dump_player_form():
-    return render_template('dumpplayerinfo.html', header = "SIngle player JSON download")
+    return render_template('dumpplayerinfo.html')
 
 @app.route('/dump_player_post', methods=['POST'])
 def present_dump_player_results():
@@ -217,7 +220,7 @@ def present_dump_player_results():
     else:
           playerinfo = json.dumps(playerinfo, indent=2)
    
-    return render_template('dumpresults.html', playerinfo = playerinfo)
+    return render_template('dumpresults.html', playerinfo = playerinfo, header = "Single Player JSON")
 
 #=======================================================================
 
