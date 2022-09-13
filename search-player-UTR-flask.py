@@ -97,8 +97,7 @@ def retrieve_player(fullname, dump="no"):
             playerlastname = searchlastname
 
         if strictnamechecking == "yes":
-            print("AQUI " + playerfirstname +" " + playerlastname)
-            if playerfirstname != searchfirstname or playerlastname != searchlastname:
+            if playerfirstname.upper() != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
                 continue
 
         try:
