@@ -1,6 +1,9 @@
 
 # APIs at https://blakestevenson.github.io/utr-api-docs/
 # API endpoint is https://agw-prod.myutr.com
+# UTR has changed their endpoint to https://agw-prod.myutr.com. 
+# You may use the "JWT" cookie from your user session as a bearer token to authenticate requests.
+
 
 import json
 import os
@@ -12,6 +15,7 @@ from flask import Flask, render_template, redirect, request, url_for, make_respo
 
 location = ""
 ignoreunrated = "no"
+strictnamechecking = "no"
 
 def retrieve_player(fullname, dump="no"):
 
@@ -47,6 +51,8 @@ def retrieve_player(fullname, dump="no"):
   
     if len(fullnameaslist) > 1:
         searchname = fullnameaslist[0] + " " + fullnameaslist[-1]
+        searchfirstname = fullnameaslist[0]
+        searchlastname = fullnameaslist[-1]
     else:
         searchname = fullnameaslist
     
@@ -80,6 +86,21 @@ def retrieve_player(fullname, dump="no"):
 
     for hit in range(hitcount):        
   
+        try:
+            playerfirstname = playerinfo["hits"][hit]["source"]["firstName"]
+        except:
+            playerfirstname = searchfirstname
+
+        try:
+            playerlastname = playerinfo["hits"][hit]["source"]["lastName"]
+        except:
+            playerlastname = searchlastname
+
+        if strictnamechecking == "yes":
+            print("AQUI " + playerfirstname +" " + playerlastname)
+            if playerfirstname != searchfirstname or playerlastname != searchlastname:
+                continue
+
         try:
             playername = playerinfo["hits"][hit]["source"]["displayName"]
         except:
@@ -130,6 +151,7 @@ def navigate_search_selection():
 
     global location 
     global ignoreunrated 
+    global strictnamechecking
 
     try:
         if request.form['location'] == "australiaonly":
@@ -142,6 +164,12 @@ def navigate_search_selection():
             ignoreunrated = "yes"
     except:
         ignoreunrated = "no"
+
+    try:
+        if request.form['strictnamechecking'] == "yes":
+            strictnamechecking = "yes"
+    except:
+        strictnamechecking = "no"
        
     searchselection = request.form['searchoption']
     
@@ -173,13 +201,13 @@ def present_search_player_results():
 
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
-    return render_template('results.html', playerlist = playerlist, header = "Search Results")
+    return render_template('results.html', playerlist = playerlist, header = "Search Results", resultsheading = "The following players were found:")
 
 
 #=======================================================================
 # Search player list by URL
 #=======================================================================
-@app.route('/search_player_url')
+@app.route('/search_player_eventurl')
 def present_search_player_by_url():
     return render_template('searchplayersbyeventurl.html')
 
@@ -188,7 +216,11 @@ def present_search_player_url_results():
     playerlist =[]
 
     http = urllib3.PoolManager()
-    response = http.request('GET', request.form['eventurl'])
+    try:
+        response = http.request('GET', request.form['eventurl'])
+    except:
+        return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by Event URL (invalid URL entered, try again)"))
+
     soup = BeautifulSoup(response.data, 'html.parser')
 
     eventname = soup.find('title').string
@@ -198,7 +230,7 @@ def present_search_player_url_results():
         playerlist.extend(retrieve_player(playerlink.get_text()))
     
     playerlist.sort(key=lambda x:x[2], reverse=True)    
-    return render_template('results.html', playerlist = playerlist, header = "Search Results", eventname = eventname)
+    return render_template('results.html', playerlist = playerlist, header = "Search Results", resultsheading = "EVENT: " + eventname)
 
 
 #=======================================================================

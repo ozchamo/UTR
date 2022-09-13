@@ -9,8 +9,13 @@
   <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
 </head>
 
-<H1>UTR Single player Dump (json) - Enter player name:</H1>
-<HR>
+<div class="box">
+  <img src="/static/utrlogo.png" height="60">
+  <H1>{{ header }}</H1>
+</div>
+<HR><BR>
+
+<p>Enter a single player name below:</p>
 <form method="post" action="/dump_player_post">
 <textarea name="playername" id="comments" rows=1 cols=80></textarea><br><br>
 <input type="submit" value="Submit" />
