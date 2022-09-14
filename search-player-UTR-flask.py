@@ -14,12 +14,14 @@ import re
 from flask import Flask, render_template, redirect, request, url_for, make_response
 
 location = ""
-ignoreunrated = "no"
-strictnamechecking = "no"
+ignoreunrated = "yes"
+strictnamechecking = "yes"
 
 def retrieve_player(fullname, dump="no"):
 
-    global location
+    global location 
+    global ignoreunrated 
+    global strictnamechecking 
 
     #defining it to return it
     playerlist = []
@@ -63,6 +65,7 @@ def retrieve_player(fullname, dump="no"):
             "Accept": "application/json",
             "Authorization": "Bearer " + utr_token
         }
+        print ("Searching for: " + searchname)
         response = http.request('GET', api_url, fields={"query":searchname}, headers = headers)
 
     if dump == "yes":
@@ -74,6 +77,7 @@ def retrieve_player(fullname, dump="no"):
     hitcount = playerinfo["total"]
 
     if hitcount == 0:
+        print(searchname + " not found")
         # Player does not exist in the DB
         if ignoreunrated == "no":
             playerrating = "0.00"
@@ -96,9 +100,17 @@ def retrieve_player(fullname, dump="no"):
         except:
             playerlastname = searchlastname
 
+        try:
+            playerfullname = playerinfo["hits"][hit]["source"]["displayName"]
+        except:
+            playerfullname = fullname
+
         if strictnamechecking == "yes":
-            if playerfirstname.upper() != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
-                continue
+            if fullname.upper() != playerfullname.upper():
+                # We've tried to match the player's fullname as display name - problem found with Pratham Om Pathak!
+                if playerfirstname.upper() != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
+                    print("Player name did not match strictnamechecking " + playerfirstname.upper() + " " + playerlastname.upper()) 
+                    continue
 
         try:
             playername = playerinfo["hits"][hit]["source"]["displayName"]
@@ -109,13 +121,14 @@ def retrieve_player(fullname, dump="no"):
             playerlocation = playerinfo["hits"][hit]["source"]["location"]["display"]
         except:
             playerlocation = "Unknown"
-        
+
         if utr_token == "":
                 playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
         else:
                 playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
-
-        if playerrating == None or playerrating == "0.00" or playerrating == "0.xx":
+                playerrating = playerinfo["hits"][hit]["source"]["myUtrSingles"]
+        print(playerrating)
+        if playerrating == None or playerrating == "0.00" or playerrating == "0.xx" or playerrating == 0.0 or playerrating == "Unrated":
             if ignoreunrated == "yes":
                 continue
             else:
@@ -125,10 +138,14 @@ def retrieve_player(fullname, dump="no"):
 
         playerid = playerinfo["hits"][hit]["source"]["id"]
 
-        if playerlocation.find(location) != -1:
-            # If there is a location parameter match we add to the list, else ignore
-            print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
+        if location == "":
+            # location does not matter...
             playerlist.append((playername, playerlocation, playerratingfloat, playerid))
+        else:
+            if playerlocation.find(location) != -1:
+                # If there is a location parameter match we add to the list, else ignore
+                print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
+                playerlist.append((playername, playerlocation, playerratingfloat, playerid))
 
     return playerlist
 
@@ -149,7 +166,7 @@ def present_search_player_form():
 def navigate_search_selection():
 
     global location 
-    global ignoreunrated 
+    global ignoreunrated  
     global strictnamechecking
 
     try:
