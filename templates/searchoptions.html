@@ -1,19 +1,8 @@
 {# templates/searchoptions.html #}
 
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base-template.html' %}
 
-<head>
-  <meta charset="utf-8">
-  <title>Player Search Page</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
-</head>
-
-<div class="box">
-  <img src="/static/utrlogo.png" height="60">
-  <H1>{{ header }}</H1>
-</div>
-<HR><BR>
+{% block body %}
 
 <form method="post" action="/navigate_search_selection">
   <input type="radio" name="searchoption" id="option1" value="searchbynamelist">
@@ -31,5 +20,6 @@
   
   <BR><HR><BR>
   <input type="submit" value="Submit" />
-
 </form>
+
+{% endblock body %}

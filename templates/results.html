@@ -1,22 +1,9 @@
 {# templates/results.html #}
 
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base-template.html' %}
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-  <title>Results</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
-</head>
+{% block body %}
 
-<body>
-  <div class="box">
-    <img src="/static/utrlogo.png" height="60">
-    <span><H1>{{ header }}</H1></span>
-  </div>
-  <HR><BR>
- 
   <H3>{{ resultsheading }}</H3>
 
   <TABLE style="width:95%; max-width:800px;">  
@@ -35,5 +22,5 @@
     </TR>
   {% endfor %}
   </TABLE>
-</body>
-</html>
+
+  {% endblock body %}

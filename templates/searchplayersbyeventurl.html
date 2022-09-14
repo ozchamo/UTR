@@ -1,22 +1,13 @@
 {# templates/searchplayersbyeventurl.html #}
 
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base-template.html' %}
 
-<head>
-  <meta charset="utf-8">
-  <title>Player Info Dump</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
-</head>
-
-<div class="box">
-  <img src="/static/utrlogo.png" height="60">
-  <H1>{{ header }}</H1>
-</div>
-<HR><BR>
+{% block body %}
 
 <p>Enter an event URL below:</p>
 <form method="post" action="/search_player_eventurl_post">
   <textarea name="eventurl" id="comments" rows=2 cols=100></textarea><br><br>
   <input type="submit" value="Submit" />
-</form>
+</form>    
+
+{% endblock body %}
