@@ -17,7 +17,7 @@
     <TR style="height:30px">
       <TD style="text-align: center;">{{ loop.index }}</TD>
       <TD style="text-align: center;">{{ '%0.2f'| format(player[2]|float) }} </TD>
-      <TD style="text-align: left;"><A HREF="https://app.universaltennis.com/profiles/{{ player[3] }}" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD>
+      <TD style="text-align: left;"><A HREF="/playerinfo.html" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD>
       <TD>{{ player[1] }} </TD> 
     </TR>
   {% endfor %}

@@ -13,15 +13,8 @@ from bs4 import BeautifulSoup
 import re
 from flask import Flask, render_template, redirect, request, url_for, make_response
 
-location = ""
-ignoreunrated = "yes"
-strictnamechecking = "yes"
 
-def retrieve_player(fullname, dump="no"):
-
-    global location 
-    global ignoreunrated 
-    global strictnamechecking 
+def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump="no"):
 
     #defining it to return it
     playerlist = []
@@ -150,24 +143,7 @@ def retrieve_player(fullname, dump="no"):
     return playerlist
 
 
-# We define the Flask app!
-app = Flask(__name__, static_url_path='/static')
-
-
-# =========================================================================
-# Search menu
-#=======================================================================
-
-@app.route('/')
-def present_search_player_form():
-    return render_template('searchoptions.html', header = "UTR Group Search options")
-
-@app.route('/navigate_search_selection', methods=['POST'])
-def navigate_search_selection():
-
-    global location 
-    global ignoreunrated  
-    global strictnamechecking
+def retrieve_search_parameters(request):
 
     try:
         if request.form['location'] == "australiaonly":
@@ -186,15 +162,33 @@ def navigate_search_selection():
             strictnamechecking = "yes"
     except:
         strictnamechecking = "no"
-       
+
+    return location, ignoreunrated, strictnamechecking
+
+
+# We define the Flask app!
+app = Flask(__name__, static_url_path='/static')
+
+
+# =========================================================================
+# Search menu
+#=======================================================================
+
+@app.route('/')
+def present_search_player_form():
+    return render_template('searchoptions.html', header = "UTR Group Search options")
+
+@app.route('/navigate_search_selection', methods=['POST'])
+def navigate_search_selection():
+
     searchselection = request.form['searchoption']
-    
+
     if searchselection == "searchbynamelist":
         return(render_template('searchplayersbynames.html', header="UTR Group Search by Player Name(s)"))
     if searchselection == "searchbyurl":
         return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by Event URL"))
     if searchselection == "searchplayerjson":
-        return(render_template('dumpplayerinfo.html', header = "UTR Single player JSON download"))
+        return(render_template('searchplayerbyjson.html', header = "UTR Single player JSON download"))
 
 
 #=======================================================================
@@ -207,17 +201,20 @@ def present_search_player_by_names():
  
 @app.route('/search_player_names_post', methods=['POST'])
 def present_search_player_results():
+
+    location, ignoreunrated, strictnamechecking = retrieve_search_parameters(request)
+
     playerlist =[]
     textplayerlist = request.form['playernamelist'].split("\r\n")
     
     for player in textplayerlist:
         if player == '':
             continue
-        playerlist.extend(retrieve_player(player))
+        playerlist.extend(retrieve_player(player, location, ignoreunrated, strictnamechecking))
 
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
-    return render_template('results.html', playerlist = playerlist, header = "Search Results", resultsheading = "The following players were found:")
+    return render_template('presentresults.html', playerlist = playerlist, header = "Search Results", resultsheading = "The following players were found:")
 
 
 #=======================================================================
@@ -231,6 +228,9 @@ def present_search_player_by_url():
 def present_search_player_url_results():
     playerlist =[]
 
+    location, ignoreunrated, strictnamechecking = retrieve_search_parameters(request)
+
+    # We check if the URL is at least a valid URL
     http = urllib3.PoolManager()
     try:
         response = http.request('GET', request.form['eventurl'])
@@ -243,36 +243,44 @@ def present_search_player_url_results():
     
     for playerlink in soup.find_all("a", href=re.compile("player.aspx?")):
         print(playerlink.get_text())
-        playerlist.extend(retrieve_player(playerlink.get_text()))
+        playerlist.extend(retrieve_player(playerlink.get_text(), location, ignoreunrated, strictnamechecking))
     
     playerlist.sort(key=lambda x:x[2], reverse=True)    
-    return render_template('results.html', playerlist = playerlist, header = "Search Results", resultsheading = "EVENT: " + eventname)
+    return render_template('presentresults.html', playerlist = playerlist, header = "Search Results", resultsheading = "EVENT: " + eventname)
 
 
 #=======================================================================
 # Dump JSON for single player
 #=======================================================================
-@app.route('/dump_player_info')
-def present_dump_player_form():
-    return render_template('dumpplayerinfo.html')
+#@app.route('/playerinfo')
+#def present_json_player_form():
+#    return render_template('playerinfo.html')
 
-@app.route('/dump_player_post', methods=['POST'])
-def present_dump_player_results():
+
+#=======================================================================
+# Dump JSON for single player
+#=======================================================================
+@app.route('/playerjson')
+def present_json_player_form():
+    return render_template('searchplayerbyjson.html')
+
+@app.route('/playerjson_post', methods=['POST'])
+def present_json_player_results():
     playerlist =[]
     textplayerlist = request.form['playername'].split("\r\n")
     
-    for player in textplayerlist:
+    for player in texnavigate_search_selectiontplayerlist:
         if player == '':
             continue
         # Note that the yes at the end changes the output of retrieve_player to dump json for one player
-        playerinfo=retrieve_player(player, "yes" )
+        playerinfo=retrieve_player(player, "", "no", "yes", "yes" )
 
     if playerinfo == "":
         playerinfo = "Player not found"
     else:
           playerinfo = json.dumps(playerinfo, indent=2)
    
-    return render_template('dumpresults.html', playerinfo = playerinfo, header = "Single Player JSON")
+    return render_template('playerjson.html', playerinfo = playerinfo, header = "Single Player JSON")
 
 #=======================================================================
 

@@ -2,12 +2,16 @@
 
 {% extends 'base-template.html' %}
 
+
 {% block body %}
 
 <p>Enter one or more player names below:</p>
 <form method="post" action="/search_player_names_post">
-  <textarea name="playernamelist" id="comments" rows=16 cols=80></textarea><br><br>
-  <input type="submit" value="Submit" />
+
+    <textarea name="playernamelist" id="comments" rows=6 cols=80></textarea><br><br>
+    {% include 'base-parameters.html' %}
+    <input type="submit" value="Submit" />
+
 </form>
 
 {% endblock body %}
