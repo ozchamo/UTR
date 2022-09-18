@@ -8,29 +8,18 @@
 import json
 import os
 import sys
-import urllib3
+from urllib.parse import parse_qs
+import urllib3 
 from bs4 import BeautifulSoup
 import re
 from flask import Flask, render_template, redirect, request, url_for, make_response
 
 
-def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump="no"):
+def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamechecking, dump="no"):
 
     #defining it to return it
     playerlist = []
-
-    # Returns a list of hits as ("fullname", UTR, "Location")
-    utr_token = os.environ.get('UTR_TOKEN', '')
-    if utr_token == '':
-        # We'll check if there is a file in this same directory... 
-        if os.path.isfile('UTR_TOKEN'):
-            with open('UTR_TOKEN') as f:
-                utr_token = f.read().rstrip("\n") #This 
-
-    api_url = "https://agw-prod.myutr.com/v2/search/players"
-
-    http = urllib3.PoolManager()
-
+    
     # We'll split the name and search first and last
     fullnameaslist = fullname.split()
 
@@ -51,6 +40,18 @@ def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump=
     else:
         searchname = fullnameaslist
     
+     # Returns a list of hits as ("fullname", UTR, "Location")
+    utr_token = os.environ.get('UTR_TOKEN', '')
+    if utr_token == '':
+        # We'll check if there is a file in this same directory... 
+        if os.path.isfile('UTR_TOKEN'):
+            with open('UTR_TOKEN') as f:
+                utr_token = f.read().rstrip("\n") #This 
+
+    api_url = "https://agw-prod.myutr.com/v2/search/players"
+    
+    http = urllib3.PoolManager()
+
     if utr_token == "":
         response = http.request('GET', api_url, fields={"query":searchname})
     else:
@@ -58,7 +59,7 @@ def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump=
             "Accept": "application/json",
             "Authorization": "Bearer " + utr_token
         }
-        print ("Searching for: " + searchname)
+        print ("Searching by name: " + searchname)
         response = http.request('GET', api_url, fields={"query":searchname}, headers = headers)
 
     if dump == "yes":
@@ -66,7 +67,7 @@ def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump=
         return json.loads(response.data)
 
     playerinfo = json.loads(response.data.decode("utf-8"))
-    
+ 
     hitcount = playerinfo["total"]
 
     if hitcount == 0:
@@ -99,11 +100,13 @@ def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump=
             playerfullname = fullname
 
         if strictnamechecking == "yes":
-            if fullname.upper() != playerfullname.upper():
-                # We've tried to match the player's fullname as display name - problem found with Pratham Om Pathak!
-                if playerfirstname.upper() != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
-                    print("Player name did not match strictnamechecking " + playerfirstname.upper() + " " + playerlastname.upper()) 
-                    continue
+             # re.sub is Adrian Yip's fault as his first name was stored as "Adrian "
+            if re.sub(' +', ' ', fullname.upper()) != re.sub(' +', ' ', playerfullname.upper()):
+                if fullname.upper() != playerfullname.upper():
+                    # We've tried to match the player's fullname as display name - problem found with Pratham Om Pathak!
+                    if playerfirstname.upper() != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
+                        print("Player name did not match strictnamechecking " + playerfirstname.upper() + " " + playerlastname.upper()) 
+                        continue
 
         try:
             playername = playerinfo["hits"][hit]["source"]["displayName"]
@@ -118,7 +121,7 @@ def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump=
         if utr_token == "":
                 playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
         else:
-                playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
+                #playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
                 playerrating = playerinfo["hits"][hit]["source"]["myUtrSingles"]
         print(playerrating)
         if playerrating == None or playerrating == "0.00" or playerrating == "0.xx" or playerrating == 0.0 or playerrating == "Unrated":
@@ -133,7 +136,7 @@ def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump=
 
         if location == "":
             # location does not matter...
-            playerlist.append((playername, playerlocation, playerratingfloat, playerid))
+            playerlist.append((playername, playerlocation, playerratingfloat, playerinfo))
         else:
             if playerlocation.find(location) != -1:
                 # If there is a location parameter match we add to the list, else ignore
@@ -141,7 +144,7 @@ def retrieve_player(fullname, location, ignoreunrated, strictnamechecking, dump=
                 playerlist.append((playername, playerlocation, playerratingfloat, playerid))
 
     return playerlist
-
+    
 
 def retrieve_search_parameters(request):
 
@@ -184,7 +187,7 @@ def navigate_search_selection():
     searchselection = request.form['searchoption']
 
     if searchselection == "searchbynamelist":
-        return(render_template('searchplayersbynames.html', header="UTR Group Search by Player Name(s)"))
+        return(render_template('searchplayersbyname.html', header="UTR Group Search by Player Name(s)"))
     if searchselection == "searchbyurl":
         return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by Event URL"))
     if searchselection == "searchplayerjson":
@@ -195,22 +198,22 @@ def navigate_search_selection():
 # Search by name list
 #=======================================================================
 
-@app.route('/search_player_names')
+@app.route('/search_players_by_name')
 def present_search_player_by_names():
-    return render_template('searchplayersbynames.html')
+    return render_template('searchplayersbyname.html')
  
-@app.route('/search_player_names_post', methods=['POST'])
+@app.route('/search_players_by_name_post', methods=['POST'])
 def present_search_player_results():
 
     location, ignoreunrated, strictnamechecking = retrieve_search_parameters(request)
 
     playerlist =[]
     textplayerlist = request.form['playernamelist'].split("\r\n")
-    
+
     for player in textplayerlist:
         if player == '':
             continue
-        playerlist.extend(retrieve_player(player, location, ignoreunrated, strictnamechecking))
+        playerlist.extend(retrieve_player_by_name(player, location, ignoreunrated, strictnamechecking))
 
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
@@ -243,18 +246,39 @@ def present_search_player_url_results():
     
     for playerlink in soup.find_all("a", href=re.compile("player.aspx?")):
         print(playerlink.get_text())
-        playerlist.extend(retrieve_player(playerlink.get_text(), location, ignoreunrated, strictnamechecking))
+        playerlist.extend(retrieve_player_by_name(playerlink.get_text(), location, ignoreunrated, strictnamechecking))
     
     playerlist.sort(key=lambda x:x[2], reverse=True)    
     return render_template('presentresults.html', playerlist = playerlist, header = "Search Results", resultsheading = "EVENT: " + eventname)
 
 
 #=======================================================================
-# Dump JSON for single player
+# Print detailed info for a player
 #=======================================================================
-#@app.route('/playerinfo')
-#def present_json_player_form():
-#    return render_template('playerinfo.html')
+@app.route('/playerinfo')
+def present_player_info():
+
+
+    #print(type(parse_qs(request.args.get('playerinfo'))))
+    #print(parse_qs(request.args.get('playerinfo')))
+    #playerinfo = parse_qs(request.args.get('playerinfo'))
+    #print(type(playerinfo))
+  
+    playerinfo=json.loads(parse_qs(request.args.get('playerinfo')))
+
+    #   playerinfo = json.loads(response.data.decode("utf-8"))
+
+    exit()
+    
+    playerinfo = parse_qs(request.args.get('playerinfo'))
+    playerdisplayName = playerinfo["hits"]['0']["source"]["displayName"]
+    playerthreeMonthRating= playerinfo["hits"][0]["source"]["threeMonthRating"]
+    playermyUtrSinglesDisplay = playerinfo["hits"][0]["source"]["myUtrSinglesDisplay"]
+    playerchangeDirection = playerinfo["hits"][0]["source"]["threeMonthRatingChangeDetails"]["changeDirection"]
+ 
+    print(playerthreeMonthRating)
+   
+    return render_template('playerinfo.html')
 
 
 #=======================================================================
@@ -269,16 +293,16 @@ def present_json_player_results():
     playerlist =[]
     textplayerlist = request.form['playername'].split("\r\n")
     
-    for player in texnavigate_search_selectiontplayerlist:
+    for player in textplayerlist:
         if player == '':
             continue
         # Note that the yes at the end changes the output of retrieve_player to dump json for one player
-        playerinfo=retrieve_player(player, "", "no", "yes", "yes" )
+        playerinfo=retrieve_player_by_name(player, "", "no", "yes", "yes" )
 
     if playerinfo == "":
         playerinfo = "Player not found"
     else:
-          playerinfo = json.dumps(playerinfo, indent=2)
+        playerinfo = json.dumps(playerinfo, indent=2)
    
     return render_template('playerjson.html', playerinfo = playerinfo, header = "Single Player JSON")
 
