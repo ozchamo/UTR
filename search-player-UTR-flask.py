@@ -121,8 +121,8 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
         if utr_token == "":
                 playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
         else:
-                #playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
-                playerrating = playerinfo["hits"][hit]["source"]["myUtrSingles"]
+                playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
+                #playerrating = playerinfo["hits"][hit]["source"]["myUtrSingles"]
         print(playerrating)
         if playerrating == None or playerrating == "0.00" or playerrating == "0.xx" or playerrating == 0.0 or playerrating == "Unrated":
             if ignoreunrated == "yes":
@@ -144,7 +144,7 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
                 playerlist.append((playername, playerlocation, playerratingfloat, playerid))
 
     return playerlist
-    
+
 
 def retrieve_search_parameters(request):
 
@@ -308,5 +308,6 @@ def present_json_player_results():
 
 #=======================================================================
 
+# Here goes the main
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
