@@ -18,3 +18,9 @@ tr:nth-child(even) {
   display: flex;
   align-items:center;
 }  
+
+textarea  
+{  
+   font-family:"Tahoma", sans-serif;  
+   font-size: 18px;   
+}
