@@ -119,7 +119,9 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
             playerlocation = "Unknown"
 
         # Ideally you would check if the token is actually useful
-        if utr_token == "":
+        #if utr_token == "":
+        if playerinfo["hits"][hit]["source"]["singlesUtrDisplay"] == "0.xx":
+                # 0.xx denotes that there is no UTR subscription so no goodies
                 #playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
                 playerrating = playerinfo["hits"][hit]["source"]["threeMonthRating"]
         else:                
