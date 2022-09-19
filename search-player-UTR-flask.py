@@ -191,7 +191,7 @@ def navigate_search_selection():
     if searchselection == "searchbyurl":
         return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by Event URL"))
     if searchselection == "searchplayerjson":
-        return(render_template('searchplayerbyjson.html', header = "UTR Single player JSON download"))
+        return(render_template('searchplayerbyjson.html', header = "UTR JSON download single player"))
 
 
 #=======================================================================
