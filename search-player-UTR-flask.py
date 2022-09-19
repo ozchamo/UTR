@@ -118,11 +118,14 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
         except:
             playerlocation = "Unknown"
 
+        # Ideally you would check if the token is actually useful
         if utr_token == "":
-                playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
-        else:
-                playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
+                #playerrating = playerinfo["hits"][hit]["source"]["threeMonthRatingChangeDetails"]["ratingDisplay"]
+                playerrating = playerinfo["hits"][hit]["source"]["threeMonthRating"]
+        else:                
                 #playerrating = playerinfo["hits"][hit]["source"]["myUtrSingles"]
+                playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
+
         print(playerrating)
         if playerrating == None or playerrating == "0.00" or playerrating == "0.xx" or playerrating == 0.0 or playerrating == "Unrated":
             if ignoreunrated == "yes":
