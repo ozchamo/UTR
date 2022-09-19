@@ -100,13 +100,13 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
             playerfullname = fullname
 
         if strictnamechecking == "yes":
-             # re.sub is Adrian Yip's fault as his first name was stored as "Adrian "
+            # re.sub is Adrian Yip's fault as his first name was stored as "Adrian "
             if re.sub(' +', ' ', fullname.upper()) != re.sub(' +', ' ', playerfullname.upper()):
-                if fullname.upper() != playerfullname.upper():
-                    # We've tried to match the player's fullname as display name - problem found with Pratham Om Pathak!
-                    if playerfirstname.upper() != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
-                        print("Player name did not match strictnamechecking " + playerfirstname.upper() + " " + playerlastname.upper()) 
-                        continue
+                # We've tried to match the player's fullname as display name - problem found with Pratham Om Pathak!
+                print("SO FAR",playerfirstname.upper().split()[0], searchfirstname.upper(), playerlastname.upper(), searchlastname.upper() )
+                if playerfirstname.upper().split()[0] != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
+                    print("Player name did not match strictnamechecking " + playerfirstname.upper() + " " + playerlastname.upper()) 
+                    continue
 
         try:
             playername = playerinfo["hits"][hit]["source"]["displayName"]
@@ -228,11 +228,11 @@ def present_search_player_results():
 #=======================================================================
 # Search player list by URL
 #=======================================================================
-@app.route('/search_player_eventurl')
+@app.route('/search_players_eventurl')
 def present_search_player_by_url():
     return render_template('searchplayersbyeventurl.html')
 
-@app.route('/search_player_eventurl_post', methods=['POST'])
+@app.route('/search_players_eventurl_post', methods=['POST'])
 def present_search_player_url_results():
     playerlist =[]
 
