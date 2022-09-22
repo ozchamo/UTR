@@ -103,7 +103,6 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
             # re.sub is Adrian Yip's fault as his first name was stored as "Adrian "
             if re.sub(' +', ' ', fullname.upper()) != re.sub(' +', ' ', playerfullname.upper()):
                 # We've tried to match the player's fullname as display name - problem found with Pratham Om Pathak!
-                print("SO FAR",playerfirstname.upper().split()[0], searchfirstname.upper(), playerlastname.upper(), searchlastname.upper() )
                 if playerfirstname.upper().split()[0] != searchfirstname.upper() or playerlastname.upper() != searchlastname.upper():
                     print("Player name did not match strictnamechecking " + playerfirstname.upper() + " " + playerlastname.upper()) 
                     continue
@@ -128,7 +127,6 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
                 #playerrating = playerinfo["hits"][hit]["source"]["myUtrSingles"]
                 playerrating = playerinfo["hits"][hit]["source"]["singlesUtrDisplay"]
 
-        print(playerrating)
         if playerrating == None or playerrating == "0.00" or playerrating == "0.xx" or playerrating == 0.0 or playerrating == "Unrated":
             if ignoreunrated == "yes":
                 continue
@@ -141,7 +139,7 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
 
         if location == "":
             # location does not matter...
-            playerlist.append((playername, playerlocation, playerratingfloat, playerinfo))
+            playerlist.append((playername, playerlocation, playerratingfloat, playerid))
         else:
             if playerlocation.find(location) != -1:
                 # If there is a location parameter match we add to the list, else ignore
@@ -250,7 +248,6 @@ def present_search_player_url_results():
     eventname = soup.find('title').string
     
     for playerlink in soup.find_all("a", href=re.compile("player.aspx?")):
-        print(playerlink.get_text())
         playerlist.extend(retrieve_player_by_name(playerlink.get_text(), location, ignoreunrated, strictnamechecking))
     
     playerlist.sort(key=lambda x:x[2], reverse=True)    
