@@ -4,23 +4,57 @@
 
 {% block body %}
 
-  <H3>{{ resultsheading }}</H3>
+<style>
+  table {
+    border-collapse: collapse;
+    width:95%; 
+    max-width:600px;
+  }
 
-  <TABLE style="width:95%; max-width:800px;">  
-    <TR style="height:30px">
-      <TH style="width:2%;text-align: center;">#</TH>
-      <TH style="width:5%;text-align: center;">UTR</TH>
-      <TH style="width:20%;text-indent: 8px;">PLAYER NAME </TH>
-      <TH style="width:16%">LOCATION</TH> 
-    </TR>
-    {% for player in playerlist %}
-    <TR style="height:30px">
-      <TD style="text-align: center;">{{ loop.index }}</TD>
-      <TD style="text-align: center;">{{ '%0.2f'| format(player[2]|float) }} </TD>
-      <TD style="text-align: left;"><A HREF="/playerinfo.html" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD>
-      <TD>{{ player[1] }} </TD> 
-    </TR>
-  {% endfor %}
-  </TABLE>
+  tr {
+    height:30px;
 
-  {% endblock body %}
+  }
+  td {
+    width:50%;
+    text-align: left;
+  }
+  </style>
+
+<TABLE>
+  <TR><TD>Singles UTR</TD><TD>{{ myUtrSinglesDisplay }}</TD></TR>
+  <TR><TD>Doubles UTR</TD><TD> {{ myUtrDoublesDisplay }}</TD></TR>
+  <TR><TD>Three Month Rating</TD><TD> {{ threeMonthRating }}</TD></TR>
+  <TR><TD>Trend </TD><TD>{{ trend }}</TD></TR>
+
+  <TR><TD>Gender </TD><TD>{{ gender }}</TD></TR>
+  <TR><TD>Age Range </TD><TD>{{ ageRange }}</TD></TR>
+  <TR><TD>Dominant Hand </TD><TD>{{ dominantHand }}</TD></TR>
+  <TR><TD>Backhand </TD><TD>{{ backhand }}</TD></TR>
+  <TR><TD>Home Club </TD><TD>{{ homeClub }}</TD></TR>
+  <TR><TD>UTR Member ID (link)</TD><TD><A HREF="https://app.universaltennis.com/profiles/{{ playerid }}" target="_blank">{{ playerid }}</A></TD></TR>
+
+</TABLE>
+
+<BR><HR><BR>
+<button onclick="displayjson()">Show JSON info for {{ displayName }}</button>
+<BR><BR>
+
+<div hidden id="playerjson">
+  <pre>
+    {{ playerinfo }}
+  </pre>
+</div>
+
+<script>
+  function displayjson() {
+    var x = document.getElementById("playerjson");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+</script>
+
+{% endblock body %}

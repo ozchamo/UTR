@@ -13,9 +13,13 @@ import urllib3
 from bs4 import BeautifulSoup
 import re
 from flask import Flask, render_template, redirect, request, url_for, make_response
+from datetime import datetime
 
+player_db = {} # This dict will hold players by id, for data lookup like so: {}
 
 def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamechecking, dump="no"):
+
+    global player_db
 
     #defining it to return it
     playerlist = []
@@ -137,14 +141,11 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
 
         playerid = playerinfo["hits"][hit]["source"]["id"]
 
-        if location == "":
-            # location does not matter...
-            playerlist.append((playername, playerlocation, playerratingfloat, playerid))
-        else:
-            if playerlocation.find(location) != -1:
-                # If there is a location parameter match we add to the list, else ignore
-                print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
-                playerlist.append((playername, playerlocation, playerratingfloat, playerid))
+        if location == "" or playerlocation.find(location) != -1:
+            # location is either "" or a string, so the above is an XOR
+            print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
+            player_db[str(playerid)]=[datetime.now(), playerinfo["hits"][hit]["source"]] # We add a little item in our temp DB for quick lookups
+            playerlist.append((playername, playerlocation, playerratingfloat, playerid, playerinfo))
 
     return playerlist
 
@@ -235,7 +236,7 @@ def present_search_player_url_results():
     playerlist =[]
 
     location, ignoreunrated, strictnamechecking = retrieve_search_parameters(request)
-
+    
     # We check if the URL is at least a valid URL
     http = urllib3.PoolManager()
     try:
@@ -260,27 +261,24 @@ def present_search_player_url_results():
 @app.route('/playerinfo')
 def present_player_info():
 
+    global player_db
 
-    #print(type(parse_qs(request.args.get('playerinfo'))))
-    #print(parse_qs(request.args.get('playerinfo')))
-    #playerinfo = parse_qs(request.args.get('playerinfo'))
-    #print(type(playerinfo))
-  
-    playerinfo=json.loads(parse_qs(request.args.get('playerinfo')))
+    playerid = request.args.get("playerid")
+    playerinfo = player_db[playerid][1]
 
-    #   playerinfo = json.loads(response.data.decode("utf-8"))
+    displayName = playerinfo["displayName"]
+    myUtrSinglesDisplay = playerinfo["myUtrSinglesDisplay"]
+    myUtrDoublesDisplay = playerinfo["myUtrDoublesDisplay"]
+    threeMonthRating = playerinfo["threeMonthRating"]
+    trend = playerinfo["threeMonthRatingChangeDetails"]["changeDirection"]
 
-    exit()
-    
-    playerinfo = parse_qs(request.args.get('playerinfo'))
-    playerdisplayName = playerinfo["hits"]['0']["source"]["displayName"]
-    playerthreeMonthRating= playerinfo["hits"][0]["source"]["threeMonthRating"]
-    playermyUtrSinglesDisplay = playerinfo["hits"][0]["source"]["myUtrSinglesDisplay"]
-    playerchangeDirection = playerinfo["hits"][0]["source"]["threeMonthRatingChangeDetails"]["changeDirection"]
- 
-    print(playerthreeMonthRating)
+    gender = playerinfo["gender"]
+    ageRange = playerinfo["ageRange"]
+    dominantHand = playerinfo["dominantHand"]
+    backhand = playerinfo["backhand"]
+    homeClub = playerinfo["homeClub"]
    
-    return render_template('playerinfo.html')
+    return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, playerid = playerid, displayName = displayName, myUtrSinglesDisplay = myUtrSinglesDisplay, myUtrDoublesDisplay = myUtrDoublesDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, playerinfo = json.dumps(playerinfo, indent=2))
 
 
 #=======================================================================

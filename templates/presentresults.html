@@ -13,14 +13,21 @@
       <TH style="width:20%;text-indent: 8px;">PLAYER NAME </TH>
       <TH style="width:16%">LOCATION</TH> 
     </TR>
+
+    <!-- 
+    player[0] contains the Full Name
+    player[1] contains the Location
+    player[2] contains the UTR  
+    -->
+
     {% for player in playerlist %}
     <TR style="height:30px">
       <TD style="text-align: center;">{{ loop.index }}</TD>
-      <TD style="text-align: center;">{{ '%0.2f'| format(player[2]|float) }} </TD>
-      <TD style="text-align: left;"><A HREF="https://app.universaltennis.com/profiles/{{ player[3] }}" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD>
+      <TD style="text-align: center;"><A HREF="https://app.universaltennis.com/profiles/{{ player[3] }}" style="text-decoration: none;cursor:pointer"></A>{{ '%0.2f'| format(player[2]|float) }}</A></TD>
+      <TD style="text-align: left;"><A HREF="/playerinfo?playerid={{ player[3] }}" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD>
       <TD>{{ player[1] }} </TD> 
     </TR>
-  {% endfor %}
+    {% endfor %}
   </TABLE>
 
   {% endblock body %}
