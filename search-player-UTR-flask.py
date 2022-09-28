@@ -183,7 +183,7 @@ app = Flask(__name__, static_url_path='/static')
 
 @app.route('/')
 def present_search_player_form():
-    return render_template('searchoptions.html', header = "UTR Group Search options")
+    return render_template('searchoptions.html', header = "UTR Group Search ")
 
 @app.route('/navigate_search_selection', methods=['POST'])
 def navigate_search_selection():

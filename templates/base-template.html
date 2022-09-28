@@ -3,21 +3,42 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
+    <head>        
+        <!-- meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/ -->
 	    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
         <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
-        <!-- meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/ -->
     </head>
 
     <body>
         
     <div class="box">
-        <img src="/static/utrlogo.png" height="60">
-        <H1>{{ header }}</H1>
+        <img src="/static/utrlogo-down.png" height="60" data-rotate="90">
+        <H1 style="margin-left:3px;margin-top:25px;">{{ header }}</H1><BR>      
     </div>
+   
+    <!-- table style="border: none; border-collapse: collapse">
+        <tr style="height: 60px; background-color: #ffffff;">
+            <td rowspan="2" style="width: 60px; border: none">
+                <img src="/static/utrlogo.png" height="60px">
+            </td> 
+            <td style="border: none">
+                <H1 style="margin-bottom: 0; margin-left: 0">{{ header }}</H1>
+            </td>   
+        </tr>
+        <tr style="height: 15px; background-color: #ffffff;">
+            <td style="border: none; margin-top: 0; margin-left: 0">
+                This site is not affiliated to <A HREF="https://www.universaltennis.com/">UTR</A>.<BR>
+                It is an experiment!
+            </td>
+        </tr>
+    </table --> 
+
     <HR><BR>
- 
+
     {% block body %}
+
+    <BR>
+    
     
     {% endblock body %}
 
