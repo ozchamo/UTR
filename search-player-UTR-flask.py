@@ -36,6 +36,8 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
     for idx, word in enumerate(fullnameaslist):
         if word.isdigit():
             fullnameaslist.pop(idx)
+        if word[0] == "[":
+            fullnameaslist.pop(idx)
   
     if len(fullnameaslist) > 1:
         searchname = fullnameaslist[0] + " " + fullnameaslist[-1]
