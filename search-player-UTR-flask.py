@@ -29,6 +29,7 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
 
     # Here go the Tennis Australia exceptions
    
+    print("[",fullnameaslist,"]")
     if fullnameaslist[0] == "Maindraw":
         fullnameaslist.pop(0)
     
@@ -217,6 +218,10 @@ def present_search_player_results():
     textplayerlist = request.form['playernamelist'].split("\r\n")
 
     for player in textplayerlist:
+        # Let's clean and ignore empty lines tabs etc
+        player = player.replace("  ","") # tabs
+        player = player.strip() # spaces
+
         if player == '':
             continue
         playerlist.extend(retrieve_player_by_name(player, location, ignoreunrated, strictnamechecking))
