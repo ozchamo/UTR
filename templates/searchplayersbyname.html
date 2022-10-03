@@ -5,12 +5,10 @@
 {% block body %}
 
 <p>Enter one or more player names below:</p>
-<form method="post" action="/search_players_by_name_post">
-
+<form method="post" action="/search_players_by_name_post" onsubmit="showLoader()">
     <textarea name="playernamelist" id="comments" rows=6 cols=30></textarea><br><br>
     {% include 'base-parameters.html' %}
-    <input type="submit" value="Submit" />
-
+    <input type="submit" value="Submit">
 </form>
-   
+
 {% endblock body %}

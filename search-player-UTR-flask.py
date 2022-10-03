@@ -45,7 +45,9 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
         searchfirstname = fullnameaslist[0]
         searchlastname = fullnameaslist[-1]
     else:
-        searchname = fullnameaslist
+        searchname = fullnameaslist[0]
+        searchfirstname = fullnameaslist[0]
+        searchlastname = fullnameaslist[0]
     
      # Returns a list of hits as ("fullname", UTR, "Location")
     utr_token = os.environ.get('UTR_TOKEN', '')
@@ -66,7 +68,7 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
             "Accept": "application/json",
             "Authorization": "Bearer " + utr_token
         }
-        print ("Searching by name: " + searchname)
+        print ("Searching by name: " + str(searchname))
         response = http.request('GET', api_url, fields={"query":searchname}, headers = headers)
 
     if dump == "yes":
