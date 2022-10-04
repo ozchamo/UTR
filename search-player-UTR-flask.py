@@ -295,7 +295,7 @@ def present_player_info():
 #=======================================================================
 @app.route('/playerjson')
 def present_json_player_form():
-    return render_template('searchplayerbyjson.html')
+    return render_template('searchplayerbyjson.html', header = "JSON Search")
 
 @app.route('/playerjson_post', methods=['POST'])
 def present_json_player_results():
