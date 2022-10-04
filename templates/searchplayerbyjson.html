@@ -5,9 +5,9 @@
 {% block body %}
     
 <p>Enter the name or UTR ID of a player below:</p>
-<form method="post" action="/playerjson_post">
+<form method="post" action="/playerjson_post" id="form-sj">
     <textarea name="playername" id="comments" rows=1 cols=30></textarea><br><br>
-    <button type="button">Search!</button>
+    <button type="submit" form="form-sj">Search!</button>
 </form>
 
 {% endblock body %}

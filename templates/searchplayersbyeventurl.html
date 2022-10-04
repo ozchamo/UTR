@@ -5,10 +5,10 @@
 {% block body %}
 
 <p>Enter an event URL below:</p>
-<form method="post" action="/search_players_eventurl_post" onsubmit="showLoader()">
+<form method="post" action="/search_players_eventurl_post" onsubmit="showLoader()" id="form-su">
   <textarea name="eventurl" id="comments" rows=4 cols=30></textarea><br><br>
   {% include 'base-parameters.html' %}
-  <button type="button">Search!</button>
+  <button type="submit" form="form-su">Search!</button>
 </form>    
 
 
