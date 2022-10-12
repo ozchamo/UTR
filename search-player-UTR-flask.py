@@ -5,7 +5,7 @@
 # You may use the "JWT" cookie from your user session as a bearer token to authenticate requests.
 
 
-import json
+import json, yaml
 import os
 import sys
 from urllib.parse import parse_qs
@@ -16,6 +16,35 @@ from flask import Flask, render_template, redirect, request, url_for, make_respo
 from datetime import datetime
 
 player_db = {} # This dict will hold players by id, for data lookup like so: {}
+player_track_list = []
+
+def retrieve_token():
+    utr_token = os.environ.get('UTR_TOKEN', '')
+    if utr_token == '':
+        # We'll check if there is a file in this same directory... 
+        if os.path.isfile('UTR_TOKEN'):
+            with open('UTR_TOKEN') as f:
+                utr_token = f.read().rstrip("\n") #This 
+    return(utr_token)
+
+
+def retrieve_player_by_id(playerid):
+
+    api_url ="https://agw-prod.myutr.com/v2/player/" + str(playerid)
+    utr_token = retrieve_token()
+
+    http = urllib3.PoolManager()
+
+    headers = {
+        "Accept": "application/json",
+        "Authorization": "Bearer " + utr_token
+    }
+
+    print ("Searching by ID: " + str(playerid))
+    response = http.request('GET', api_url, headers = headers)
+    
+    return(json.loads(response.data.decode("utf-8")))
+   
 
 def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamechecking, dump="no"):
 
@@ -60,6 +89,18 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
     api_url = "https://agw-prod.myutr.com/v2/search/players"
     
     http = urllib3.PoolManager()
+
+    # DEBUGGING?
+    #api_url ="https://agw-prod.myutr.com/v2/player/956231"
+    #headers = {
+    #    "Accept": "application/json",
+    #    "Authorization": "Bearer " + utr_token
+    #}
+    #print ("Searching by name for DEBUG: " + str(searchname))
+    #response = http.request('GET', api_url, headers = headers)
+    #print("[",str(response.data.decode('utf8')),"]")
+    #exit()
+    # DEBUGGING?
 
     if utr_token == "":
         response = http.request('GET', api_url, fields={"query":searchname})
@@ -188,7 +229,23 @@ app = Flask(__name__, static_url_path='/static')
 
 @app.route('/')
 def present_search_player_form():
-    return render_template('searchoptions.html', header = "UTR Group Search ")
+
+    playerlist = []
+
+    cookiedata = request.cookies.get('followedplayers')
+    print("COOKIE HAD", cookiedata)
+
+    if cookiedata != None:
+        followedplayers = json.loads(cookiedata)
+        print("COOKIE HAD", followedplayers)
+
+        for playerid in followedplayers:
+          print("DETAIL", type(playerid))
+          playerinfo = retrieve_player_by_id(playerid)
+          print("DETAIL", playerinfo["displayName"],playerinfo["singlesUtr"])
+          playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"]))
+
+    return render_template('main-page.html', header = "UTR Group Search ", playerlist = playerlist)
 
 @app.route('/navigate_search_selection', methods=['POST'])
 def navigate_search_selection():
@@ -220,6 +277,7 @@ def present_search_player_results():
     textplayerlist = request.form['playernamelist'].split("\r\n")
 
     for player in textplayerlist:
+
         # Let's clean and ignore empty lines tabs etc
         player = player.replace("  ","") # tabs
         player = player.strip() # spaces
@@ -227,7 +285,7 @@ def present_search_player_results():
         if player == '':
             continue
         playerlist.extend(retrieve_player_by_name(player, location, ignoreunrated, strictnamechecking))
-
+ 
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
     return render_template('presentresults.html', playerlist = playerlist, header = "Search Results", resultsheading = "The following players were found:")
@@ -276,8 +334,8 @@ def present_player_info():
     playerinfo = player_db[playerid][1]
 
     displayName = playerinfo["displayName"]
-    myUtrSinglesDisplay = playerinfo["myUtrSinglesDisplay"]
-    myUtrDoublesDisplay = playerinfo["myUtrDoublesDisplay"]
+    singlesUtrDisplay = playerinfo["singlesUtrDisplay"]
+    doublesUtrDisplay = playerinfo["doublesUtrDisplay"]
     threeMonthRating = playerinfo["threeMonthRating"]
     trend = playerinfo["threeMonthRatingChangeDetails"]["changeDirection"]
 
@@ -286,12 +344,43 @@ def present_player_info():
     dominantHand = playerinfo["dominantHand"]
     backhand = playerinfo["backhand"]
     homeClub = playerinfo["homeClub"]
-   
-    return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, playerid = playerid, displayName = displayName, myUtrSinglesDisplay = myUtrSinglesDisplay, myUtrDoublesDisplay = myUtrDoublesDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, playerinfo = json.dumps(playerinfo, indent=2))
+
+    displayplayerinfo = re.sub(" *\[.*\] *", " ", json.dumps(playerinfo, indent=6))
+    displayplayerinfo = displayplayerinfo.replace('"','')
+    displayplayerinfo = displayplayerinfo.replace("{","")
+    displayplayerinfo = displayplayerinfo.replace("},","")
+    displayplayerinfo = displayplayerinfo.replace("}","")
+    displayplayerinfo = displayplayerinfo.replace("[","")
+    displayplayerinfo = displayplayerinfo.replace("],","")
+    displayplayerinfo = displayplayerinfo.replace("]","")
+    displayplayerinfo = displayplayerinfo.replace(",","")
+
+    return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, playerid = playerid, displayName = displayName, singlesUtrDisplay = singlesUtrDisplay, doublesUtrDisplay = doublesUtrDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, jsonplayerinfo = json.dumps(playerinfo, indent=6), displayplayerinfo = displayplayerinfo)
+
+
 
 
 #=======================================================================
-# Dump JSON for single player
+# Add tracked player to list
+#=======================================================================
+@app.route('/trackplayer', methods=['GET'])
+def track_player():
+    playerid = request.args['playerid']
+
+    if playerid not in player_track_list:
+        player_track_list.append(playerid)
+        print("playerid added to the follow list:", playerid)
+        
+        resp = make_response("<h1>cookie is set</h1>")
+        resp.set_cookie('followedplayers', json.dumps(player_track_list))
+        
+        return resp
+
+    return ""
+
+
+#=======================================================================
+# Dump JSON for single player  *** NOT MAINTAINED IN TREE
 #=======================================================================
 @app.route('/playerjson')
 def present_json_player_form():

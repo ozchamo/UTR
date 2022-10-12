@@ -15,15 +15,18 @@
     height:30px;
 
   }
+
   td {
     width:50%;
     text-align: left;
   }
   </style>
 
+
 <TABLE>
-  <TR><TD>Singles UTR</TD><TD>{{ myUtrSinglesDisplay }}</TD></TR>
-  <TR><TD>Doubles UTR</TD><TD> {{ myUtrDoublesDisplay }}</TD></TR>
+
+  <TR><TD>Singles UTR</TD><TD>{{ singlesUtrDisplay }}</TD></TR>
+  <TR><TD>Doubles UTR</TD><TD> {{ doublesUtrDisplay }}</TD></TR>
   <TR><TD>Three Month Rating</TD><TD> {{ threeMonthRating }}</TD></TR>
   <TR><TD>Trend </TD><TD>{{ trend }}</TD></TR>
 
@@ -32,29 +35,63 @@
   <TR><TD>Dominant Hand </TD><TD>{{ dominantHand }}</TD></TR>
   <TR><TD>Backhand </TD><TD>{{ backhand }}</TD></TR>
   <TR><TD>Home Club </TD><TD>{{ homeClub }}</TD></TR>
-  <TR><TD>UTR Member ID (link)</TD><TD><A HREF="https://app.universaltennis.com/profiles/{{ playerid }}" target="_blank">{{ playerid }}</A></TD></TR>
-
+  <TR><TD>UTR Member ID (link)</TD><TD><A HREF="https://app.universaltennis.com/profiles/{{ playerid }}" target="_blank">{{ playerid }}</A>
+      <button onclick="displaydata()">All data</button></TD></TR>
+  
 </TABLE>
 
-<BR><HR><BR>
-<button onclick="displayjson()">Show JSON info for {{ displayName }}</button>
-<BR><BR>
+<TABLE>
+  <TR style="border:0">
+    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="followplayer()">Follow {{ displayName }}</button></TD>
+    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/';">Back to main page</button></TD>
+  </TR>
+</TABLE>
+
+
+<div hidden id="playerdata">
+  <BR><BR><HR><BR>
+  <button onclick="displayjson()">Show as JSON data</button>
+  <button onclick="hidealldata()">Hide</button>
+  <pre>
+    {{ displayplayerinfo }}
+  </pre>
+</div>
 
 <div hidden id="playerjson">
+  <BR><BR><HR><BR>
+  <button onclick="displaydata()">Show extended data</button>
+  <button onclick="hidealldata()">Hide</button>
   <pre>
-    {{ playerinfo }}
+    {{ jsonplayerinfo }}
   </pre>
 </div>
 
 <script>
-  function displayjson() {
-    var x = document.getElementById("playerjson");
-    if (x.style.display === "none") {
-      x.style.display = "block";
-    } else {
-      x.style.display = "none";
-    }
+
+  function followplayer() {
+    fetch( '/trackplayer?playerid={{ playerid }}')
+    alert("You are now following {{ displayName }} on the main page!")
+    .then( response => response.json() )
+    .then( response => {
+        // Do something with response.
+    } );
   }
+
+  function displaydata() {
+    document.getElementById("playerjson").style.display = "none"
+    document.getElementById("playerdata").style.display = "block"
+  }
+
+  function displayjson() {
+    document.getElementById("playerdata").style.display = "none"
+    document.getElementById("playerjson").style.display = "block"
+  }
+
+  function hidealldata() {
+    document.getElementById("playerdata").style.display = "none"
+    document.getElementById("playerjson").style.display = "none"
+  }
+
 </script>
 
 {% endblock body %}

@@ -1,4 +1,4 @@
-{# templates/searchoptions.html #}
+{# templates/main-page.html #}
 
 {% extends 'base-template.html' %}
 
@@ -14,11 +14,23 @@
     <label for="option3">Dump JSON for a single player</label><br>
   -->
   
-  <BR><HR><BR>
-
+  <BR><HR>
   <input type="submit" value="Submit" />
 </form>
 <BR>
+
+  {% if playerlist == [] %}
+    <BR>
+    <pre>Players you follow will display here.</pre>
+  {% else %}
+  <pre>You are following these players:</pre>
+    <TABLE class="playerinfo-table">
+      {% for player in playerlist %}
+      <TR><TD>{{ player[0] }}</TD><TD>{{ '%2.2f'| format(player[1]|float) }}</TD></TR>
+      {% endfor %}
+    </TABLE>
+  {% endif %} 
+
 <DIV style="position: fixed; bottom: 0; left: 0;">
 This site is not affiliated to <A HREF="https://www.universaltennis.com/">UTR</A>.
 <DIV>
