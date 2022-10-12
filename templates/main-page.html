@@ -5,9 +5,9 @@
 {% block body %}
 
 <form method="post" action="/navigate_search_selection">
-  <input type="radio" name="searchoption" id="option1" value="searchbynamelist">
+  <input type="radio" name="searchoption" id="option1" value="searchbynamelist" checked >
   <label for="option1">Player name(s)</label><br>
-  <input type="radio" name="searchoption" id="option2" value="searchbyurl" checked>
+  <input type="radio" name="searchoption" id="option2" value="searchbyurl">
   <label for="option2">Tournament event URL (AU)</label><br>
   <!-- We had JSON dump at the begining
     <input type="radio" name="searchoption" id="option3" value="searchplayerjson">
@@ -21,7 +21,7 @@
 
   {% if playerlist == [] %}
     <BR>
-    <pre>Players you follow will display here.</pre>
+    <pre>Players you follow will be displayed here.</pre>
   {% else %}
   <pre>You are following these players:</pre>
     <TABLE class="playerinfo-table">
