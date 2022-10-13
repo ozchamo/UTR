@@ -16,7 +16,7 @@ from flask import Flask, render_template, redirect, request, url_for, make_respo
 from datetime import datetime
 
 player_db = {} # This dict will hold players by id, for data lookup like so: {}
-player_track_list = []
+
 
 def retrieve_token():
     utr_token = os.environ.get('UTR_TOKEN', '')
@@ -26,6 +26,45 @@ def retrieve_token():
             with open('UTR_TOKEN') as f:
                 utr_token = f.read().rstrip("\n") #This 
     return(utr_token)
+
+
+def retrieve_followed_players_from_cookie():
+    followedplayers = []
+
+    cookiedata = request.cookies.get('followedplayers')
+    print("COOKIE HAD", cookiedata)
+
+    if cookiedata != None:
+        followedplayers = json.loads(cookiedata)
+        print("COOKIE HAD", followedplayers)
+    else:
+        print("COOKIE HAD None")
+
+    #if cookiedata != None:
+    #    followedplayers = json.loads(cookiedata)
+    #    print("COOKIE HAD", followedplayers)
+
+    #    for playerid in followedplayers:
+    #        playerinfo = retrieve_player_by_id(playerid)
+    #        playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"]))
+    #else:
+    #    print("COOKIE HAD None")
+       
+    return(followedplayers)
+    
+
+def add_followed_player_to_cookie(playerid):
+
+    playerlist = retrieve_followed_players_from_cookie()
+
+    if playerid not in playerlist:
+        playerlist.append(playerid)
+        print("playerid added to the follow list:", playerid)
+        resp = make_response("<h1>cookie is set</h1>")
+        resp.set_cookie('followedplayers', json.dumps(playerlist))
+        
+        return resp
+    return ""
 
 
 def retrieve_player_by_id(playerid):
@@ -240,10 +279,10 @@ def present_search_player_form():
         print("COOKIE HAD", followedplayers)
 
         for playerid in followedplayers:
-          print("DETAIL", type(playerid))
-          playerinfo = retrieve_player_by_id(playerid)
-          print("DETAIL", playerinfo["displayName"],playerinfo["singlesUtr"])
-          playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"]))
+            playerinfo = retrieve_player_by_id(playerid)
+            playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"]))
+    else:
+        print("COOKIE HAD None")
 
     return render_template('main-page.html', header = "UTR Group Search ", playerlist = playerlist)
 
@@ -358,25 +397,14 @@ def present_player_info():
     return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, playerid = playerid, displayName = displayName, singlesUtrDisplay = singlesUtrDisplay, doublesUtrDisplay = doublesUtrDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, jsonplayerinfo = json.dumps(playerinfo, indent=6), displayplayerinfo = displayplayerinfo)
 
 
-
-
 #=======================================================================
 # Add tracked player to list
 #=======================================================================
 @app.route('/trackplayer', methods=['GET'])
 def track_player():
     playerid = request.args['playerid']
-
-    if playerid not in player_track_list:
-        player_track_list.append(playerid)
-        print("playerid added to the follow list:", playerid)
-        
-        resp = make_response("<h1>cookie is set</h1>")
-        resp.set_cookie('followedplayers', json.dumps(player_track_list))
-        
-        return resp
-
-    return ""
+    print("calling add_followed_player...", playerid)
+    return(add_followed_player_to_cookie(playerid))
 
 
 #=======================================================================
