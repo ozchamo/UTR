@@ -4,19 +4,15 @@
 
 {% block body %}
 
-<form method="post" action="/navigate_search_selection">
-  <input type="radio" name="searchoption" id="option1" value="searchbynamelist" checked >
-  <label for="option1">Player name(s)</label><br>
-  <input type="radio" name="searchoption" id="option2" value="searchbyurl">
-  <label for="option2">Tournament event URL (AU)</label><br>
-  <!-- We had JSON dump at the begining
-    <input type="radio" name="searchoption" id="option3" value="searchplayerjson">
-    <label for="option3">Dump JSON for a single player</label><br>
-  -->
-  
-  <BR><HR>
-  <input type="submit" value="Submit" />
-</form>
+
+  <TABLE class="two-column-table">
+    <TR style="border:0">
+      <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/search_players_by_name'">Search players by name</button></TD>
+      <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/search_players_eventurl';">Search by Tournament Event</button></TD>
+    </TR>
+  </TABLE>
+
+<BR><HR>
 <BR>
 
   {% if playerlist == [] %}

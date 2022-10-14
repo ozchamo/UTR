@@ -81,7 +81,7 @@ def retrieve_player_by_id(playerid):
 
     print ("Searching by ID: " + str(playerid))
     response = http.request('GET', api_url, headers = headers)
-    
+   
     return(json.loads(response.data.decode("utf-8")))
    
 
@@ -263,7 +263,7 @@ app = Flask(__name__, static_url_path='/static')
 
 
 # =========================================================================
-# Search menu
+# Main page - landing
 #=======================================================================
 
 @app.route('/')
@@ -286,18 +286,6 @@ def present_search_player_form():
 
     return render_template('main-page.html', header = "UTR Group Search ", playerlist = playerlist)
 
-@app.route('/navigate_search_selection', methods=['POST'])
-def navigate_search_selection():
-
-    searchselection = request.form['searchoption']
-
-    if searchselection == "searchbynamelist":
-        return(render_template('searchplayersbyname.html', header="UTR Group Search by Player Name(s)"))
-    if searchselection == "searchbyurl":
-        return(render_template('searchplayersbyeventurl.html', header = "UTR Group Search by Event URL"))
-    if searchselection == "searchplayerjson":
-        return(render_template('searchplayerbyjson.html', header = "UTR JSON single player"))
-
 
 #=======================================================================
 # Search by name list
@@ -305,7 +293,7 @@ def navigate_search_selection():
 
 @app.route('/search_players_by_name')
 def present_search_player_by_names():
-    return render_template('searchplayersbyname.html')
+    return render_template('searchplayersbyname.html', header="UTR Group Search by Player Name(s)")
  
 @app.route('/search_players_by_name_post', methods=['POST'])
 def present_search_player_results():
@@ -335,7 +323,7 @@ def present_search_player_results():
 #=======================================================================
 @app.route('/search_players_eventurl')
 def present_search_player_by_url():
-    return render_template('searchplayersbyeventurl.html')
+    return render_template('searchplayersbyeventurl.html', header = "UTR Group Search by Event URL")
 
 @app.route('/search_players_eventurl_post', methods=['POST'])
 def present_search_player_url_results():

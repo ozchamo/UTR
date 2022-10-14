@@ -10,7 +10,7 @@ table, th, td {
     text-align: left;
 }
   
-tr:nth-child(even) {
+tr:nth-child(odd) {
     background-color: #9cedf6;
 }
 
@@ -48,6 +48,25 @@ a {
 }
 
 
+/* Button layout table */
+
+.two-column-table {
+  border-collapse: collapse;
+  width:95%; 
+  max-width:600px;
+}
+
+.two-column-table tr {
+  height:30px;
+
+}
+
+.two-column-table td {
+  width:50%;
+  text-align: left;
+}
+
+
 /*  Player info button */
 
 .button {
@@ -55,7 +74,7 @@ a {
   border: 2px solid black;
   border-radius: 5px;
   color: black;
-  padding: 10px 26px;
+  padding: 10px 22px;
   text-align: center;
   text-decoration: none;
   display: inline-block;

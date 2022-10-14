@@ -4,26 +4,7 @@
 
 {% block body %}
 
-<style>
-  table {
-    border-collapse: collapse;
-    width:95%; 
-    max-width:600px;
-  }
-
-  tr {
-    height:30px;
-
-  }
-
-  td {
-    width:50%;
-    text-align: left;
-  }
-  </style>
-
-
-<TABLE>
+<TABLE class="two-column-table">
 
   <TR><TD>Singles UTR</TD><TD>{{ singlesUtrDisplay }}</TD></TR>
   <TR><TD>Doubles UTR</TD><TD> {{ doublesUtrDisplay }}</TD></TR>
@@ -40,7 +21,7 @@
   
 </TABLE>
 
-<TABLE>
+<TABLE class="two-column-table">
   <TR style="border:0">
     <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="followplayer()">Follow {{ displayName }}</button></TD>
     <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/';">Back to main page</button></TD>
