@@ -282,7 +282,7 @@ def present_search_player_form():
             playerinfo = retrieve_player_by_id(playerid)
             playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"]))
     else:
-        print("COOKIE HAD None")
+        print("COOKIE WAS EMPTY('None')")
 
     return render_template('main-page.html', header = "UTR Group Search ", playerlist = playerlist)
 
