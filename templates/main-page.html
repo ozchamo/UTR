@@ -7,8 +7,8 @@
 
   <TABLE class="two-column-table">
     <TR style="border:0">
-      <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/search_players_by_name'">Search players by name</button></TD>
-      <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/search_players_eventurl';">Search by Tournament Event</button></TD>
+      <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/search_players_by_name'">Search by Player Name</button></TD>
+      <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/search_players_eventurl';">Search by Event URL</button></TD>
     </TR>
   </TABLE>
 
@@ -22,7 +22,7 @@
   <pre>You are following these players:</pre>
     <TABLE class="playerinfo-table">
       {% for player in playerlist %}
-      <TR><TD>{{ player[0] }}</TD><TD>{{ '%2.2f'| format(player[1]|float) }}</TD></TR>
+      <TR><TD><A HREF="/playerinfo?playerid={{ player[2] }}" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD><TD>{{ '%2.2f'| format(player[1]|float) }}</TD></TR>
       {% endfor %}
     </TABLE>
   {% endif %} 

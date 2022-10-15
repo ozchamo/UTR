@@ -40,16 +40,6 @@ def retrieve_followed_players_from_cookie():
     else:
         print("COOKIE HAD None")
 
-    #if cookiedata != None:
-    #    followedplayers = json.loads(cookiedata)
-    #    print("COOKIE HAD", followedplayers)
-
-    #    for playerid in followedplayers:
-    #        playerinfo = retrieve_player_by_id(playerid)
-    #        playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"]))
-    #else:
-    #    print("COOKIE HAD None")
-       
     return(followedplayers)
     
 
@@ -61,13 +51,16 @@ def add_followed_player_to_cookie(playerid):
         playerlist.append(playerid)
         print("playerid added to the follow list:", playerid)
         resp = make_response("<h1>cookie is set</h1>")
-        resp.set_cookie('followedplayers', json.dumps(playerlist))
+        # Expiry date is one month
+        resp.set_cookie('followedplayers', json.dumps(playerlist), max_age=60*60*24*30)
         
         return resp
     return ""
 
 
 def retrieve_player_by_id(playerid):
+
+    playerlist = [] # Although this returns only one item, we stick to a slit to be consistent with other calls
 
     api_url ="https://agw-prod.myutr.com/v2/player/" + str(playerid)
     utr_token = retrieve_token()
@@ -81,7 +74,25 @@ def retrieve_player_by_id(playerid):
 
     print ("Searching by ID: " + str(playerid))
     response = http.request('GET', api_url, headers = headers)
-   
+    playerinfo = json.loads(response.data.decode("utf-8"))
+    print(json.loads(response.data.decode("utf-8")))
+    
+    player_db[str(playerid)]=[datetime.now(), playerinfo] # We add a little item in our temp DB for quick lookups
+
+    playername = playerinfo["displayName"]
+    playerlocation = playerinfo["location"]["display"]
+    if playerinfo["singlesUtrDisplay"] == "0.xx":
+        playerrating = playerinfo["threeMonthRating"]
+    else:                
+
+        playerrating = playerinfo["singlesUtrDisplay"]
+    if playerrating == None or playerrating == "0.00" or playerrating == "0.xx" or playerrating == 0.0 or playerrating == "Unrated":
+        playerrating = "0.00"
+    playerratingfloat = float(playerrating)
+
+
+    playerlist.append((playername, playerlocation, playerratingfloat, playerid, playerinfo))
+    
     return(json.loads(response.data.decode("utf-8")))
    
 
@@ -280,7 +291,7 @@ def present_search_player_form():
 
         for playerid in followedplayers:
             playerinfo = retrieve_player_by_id(playerid)
-            playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"]))
+            playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"], playerid))
     else:
         print("COOKIE WAS EMPTY('None')")
 
