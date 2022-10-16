@@ -22,7 +22,7 @@
   <pre>You are following these players:</pre>
     <TABLE class="playerinfo-table">
       {% for player in playerlist %}
-      <TR><TD><A HREF="/playerinfo?playerid={{ player[2] }}" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD><TD>{{ '%2.2f'| format(player[1]|float) }}</TD></TR>
+        <TR><TD><A HREF="/playerinfo?playerid={{ player[3] }}&followbutton=disabled" style="color:blue ;text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD><TD>{{ '%2.2f'| format(player[2]|float) }}</TD></TR>
       {% endfor %}
     </TABLE>
   {% endif %} 

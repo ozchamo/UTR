@@ -75,8 +75,7 @@ def retrieve_player_by_id(playerid):
     print ("Searching by ID: " + str(playerid))
     response = http.request('GET', api_url, headers = headers)
     playerinfo = json.loads(response.data.decode("utf-8"))
-    print(json.loads(response.data.decode("utf-8")))
-    
+      
     player_db[str(playerid)]=[datetime.now(), playerinfo] # We add a little item in our temp DB for quick lookups
 
     playername = playerinfo["displayName"]
@@ -84,16 +83,15 @@ def retrieve_player_by_id(playerid):
     if playerinfo["singlesUtrDisplay"] == "0.xx":
         playerrating = playerinfo["threeMonthRating"]
     else:                
-
         playerrating = playerinfo["singlesUtrDisplay"]
     if playerrating == None or playerrating == "0.00" or playerrating == "0.xx" or playerrating == 0.0 or playerrating == "Unrated":
         playerrating = "0.00"
     playerratingfloat = float(playerrating)
 
-
     playerlist.append((playername, playerlocation, playerratingfloat, playerid, playerinfo))
-    
-    return(json.loads(response.data.decode("utf-8")))
+    return(playerlist)
+    #return(json.loads
+    # (response.data.decode("utf-8")))
    
 
 def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamechecking, dump="no"):
@@ -290,10 +288,10 @@ def present_search_player_form():
         print("COOKIE HAD", followedplayers)
 
         for playerid in followedplayers:
-            playerinfo = retrieve_player_by_id(playerid)
-            playerlist.append((playerinfo["displayName"],playerinfo["singlesUtr"], playerid))
+            playerlist = retrieve_player_by_id(playerid)
     else:
         print("COOKIE WAS EMPTY('None')")
+    print(playerlist)
 
     return render_template('main-page.html', header = "UTR Group Search ", playerlist = playerlist)
 
@@ -369,9 +367,11 @@ def present_player_info():
     global player_db
 
     playerid = request.args.get("playerid")
+    followbutton = request.args.get("followbutton")
     playerinfo = player_db[playerid][1]
 
     displayName = playerinfo["displayName"]
+    firstName = playerinfo["firstName"]
     singlesUtrDisplay = playerinfo["singlesUtrDisplay"]
     doublesUtrDisplay = playerinfo["doublesUtrDisplay"]
     threeMonthRating = playerinfo["threeMonthRating"]
@@ -393,7 +393,7 @@ def present_player_info():
     displayplayerinfo = displayplayerinfo.replace("]","")
     displayplayerinfo = displayplayerinfo.replace(",","")
 
-    return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, playerid = playerid, displayName = displayName, singlesUtrDisplay = singlesUtrDisplay, doublesUtrDisplay = doublesUtrDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, jsonplayerinfo = json.dumps(playerinfo, indent=6), displayplayerinfo = displayplayerinfo)
+    return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, followbutton = followbutton, playerid = playerid, displayName = displayName, firstName = firstName, singlesUtrDisplay = singlesUtrDisplay, doublesUtrDisplay = doublesUtrDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, jsonplayerinfo = json.dumps(playerinfo, indent=6), displayplayerinfo = displayplayerinfo)
 
 
 #=======================================================================

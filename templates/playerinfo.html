@@ -20,10 +20,14 @@
       <button onclick="displaydata()">All data</button></TD></TR>
   
 </TABLE>
-
+<BR>
 <TABLE class="two-column-table">
   <TR style="border:0">
-    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="followplayer()">Follow {{ displayName }}</button></TD>
+    {% if followbutton == 'disabled' %}
+    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden; "><button disabled class="button" onclick="followplayer()" style="cursor: default;color:slategray;">Already following!</button></TD>
+    {% else %}
+    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="followplayer()">Follow {{ firstName }}</button></TD>
+    {% endif %}
     <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/';">Back to main page</button></TD>
   </TR>
 </TABLE>
