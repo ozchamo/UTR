@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
     </head>
 
-    <body onload="hideLoader()">
+    <body onload="hideLoader()" onunload="hideUnloader()">
         
     <div class="box">
         <img src="/static/utrlogo-left.png" height="60">

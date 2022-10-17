@@ -19,10 +19,10 @@ tr:nth-child(odd) {
   align-items:center;
 }  
 
-textarea  
-{  
+textarea {  
   font-family:"Tahoma", sans-serif;  
-  font-size: 18px;   
+  font-size: 18px;  
+  max-width:600px;
 }
 
 a {
@@ -82,6 +82,13 @@ a {
   margin: 4px 2px;
   cursor: pointer;
   height: 60px;
+}
+
+button:disabled {
+  background-color: #9cedf6;
+  border: 2px gray;
+  color: gray ;
+  cursor: default;
 }
 
 #loader {

@@ -23,10 +23,10 @@
 <BR>
 <TABLE class="two-column-table">
   <TR style="border:0">
-    {% if followbutton == 'disabled' %}
-    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden; "><button disabled class="button" onclick="followplayer()" style="cursor: default;color:slategray;">Already following!</button></TD>
+    {% if playerisfollowed == 'True' %}
+    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden; "><button disabled id="followbutton" class="button" onclick="followplayer()" style="cursor: default;color:slategray;">You're following {{ firstName }}</button></TD>
     {% else %}
-    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="followplayer()">Follow {{ firstName }}</button></TD>
+    <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button id="followbutton" class="button" onclick="followplayer()">Follow {{ firstName }}</button></TD>
     {% endif %}
     <TD style="text-align:center;height: 80px; background-color: white;border-style:hidden;"><button class="button" onclick="location.href='/';">Back to main page</button></TD>
   </TR>
@@ -54,12 +54,15 @@
 <script>
 
   function followplayer() {
-    fetch( '/trackplayer?playerid={{ playerid }}')
+    var button = document.getElementById("followbutton")
+    fetch('/followplayer?playerid={{ playerid }}')
+    .then(response => response.json())
+    .then(data => console.log(data));
+   
     alert("You are now following {{ displayName }} on the main page!")
-    .then( response => response.json() )
-    .then( response => {
-        // Do something with response.
-    } );
+
+    button.disabled = true; 
+    button.text = "You're following {{ firstName }}";
   }
 
   function displaydata() {

@@ -19,13 +19,14 @@
     player[1] contains the Location
     player[2] contains the UTR
     player[3] contains the member ID  
+    player[4] contains whether the player is followed
     -->
 
     {% for player in playerlist %}
     <TR style="height:30px">
       <TD style="text-align: center;">{{ loop.index }}</TD>
       <TD style="text-align: center;">{{ '%2.2f'| format(player[2]|float) }}</A></TD>
-      <TD style="text-align: left;"><A HREF="/playerinfo?playerid={{ player[3] }}" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD>
+      <TD style="text-align: left;"><A HREF="/playerinfo?playerid={{ player[3] }}&playerisfollowed={{ player[4] }}" style="text-decoration: none;cursor:pointer">{{ player[0] }}</A></TD>
       <TD>{{ player[1] }} </TD> 
     </TR>
     {% endfor %}

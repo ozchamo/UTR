@@ -6,6 +6,7 @@
 
 
 import json, yaml
+from torch import true_divide
 import os
 import sys
 from urllib.parse import parse_qs
@@ -50,12 +51,23 @@ def add_followed_player_to_cookie(playerid):
     if playerid not in playerlist:
         playerlist.append(playerid)
         print("playerid added to the follow list:", playerid)
-        resp = make_response("<h1>cookie is set</h1>")
-        # Expiry date is one month
-        resp.set_cookie('followedplayers', json.dumps(playerlist), max_age=60*60*24*30)
+        resp = make_response("<h1>added " + str(playerid) + " to cookie</h1>")
+        # Expiry date is one year
+        resp.set_cookie('followedplayers', json.dumps(playerlist), max_age=60*60*24*365)
         
         return resp
     return ""
+
+
+def player_is_followed(playerid):
+    followedplayers = retrieve_followed_players_from_cookie()
+    print("FOLLOWED PLAYERS", followedplayers)
+    print(playerid)
+    if str(playerid) in followedplayers:
+        print("PLAYERID IS FOLLOWED: ", playerid)
+        return True
+    else:
+        return False
 
 
 def retrieve_player_by_id(playerid):
@@ -88,10 +100,8 @@ def retrieve_player_by_id(playerid):
         playerrating = "0.00"
     playerratingfloat = float(playerrating)
 
-    playerlist.append((playername, playerlocation, playerratingfloat, playerid, playerinfo))
+    playerlist.append((playername, playerlocation, playerratingfloat, playerid, player_is_followed(playerid), playerinfo))
     return(playerlist)
-    #return(json.loads
-    # (response.data.decode("utf-8")))
    
 
 def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamechecking, dump="no"):
@@ -239,7 +249,7 @@ def retrieve_player_by_name(fullname, location, ignoreunrated, strictnamecheckin
             # location is either "" or a string, so the above is an XOR
             print("Adding player: " + str((playername, playerlocation, playerrating, playerid)))
             player_db[str(playerid)]=[datetime.now(), playerinfo["hits"][hit]["source"]] # We add a little item in our temp DB for quick lookups
-            playerlist.append((playername, playerlocation, playerratingfloat, playerid, playerinfo))
+            playerlist.append((playername, playerlocation, playerratingfloat, playerid, player_is_followed(playerid), playerinfo))
 
     return playerlist
 
@@ -288,10 +298,9 @@ def present_search_player_form():
         print("COOKIE HAD", followedplayers)
 
         for playerid in followedplayers:
-            playerlist = retrieve_player_by_id(playerid)
+            playerlist.extend(retrieve_player_by_id(playerid))
     else:
         print("COOKIE WAS EMPTY('None')")
-    print(playerlist)
 
     return render_template('main-page.html', header = "UTR Group Search ", playerlist = playerlist)
 
@@ -324,6 +333,7 @@ def present_search_player_results():
  
     # We reorder the list by UTR
     playerlist.sort(key=lambda x:x[2], reverse=True)    
+    
     return render_template('presentresults.html', playerlist = playerlist, header = "Search Results", resultsheading = "The following players were found:")
 
 
@@ -354,7 +364,9 @@ def present_search_player_url_results():
     for playerlink in soup.find_all("a", href=re.compile("player.aspx?")):
         playerlist.extend(retrieve_player_by_name(playerlink.get_text(), location, ignoreunrated, strictnamechecking))
     
-    playerlist.sort(key=lambda x:x[2], reverse=True)    
+    # playerlist is [(playername, playerlocation, playerratingfloat, playerid, playerisfollowed(), playerinfo)]
+    playerlist.sort(key=lambda x:x[2], reverse=True)
+   
     return render_template('presentresults.html', playerlist = playerlist, header = "Search Results", resultsheading = "EVENT: " + eventname)
 
 
@@ -367,7 +379,8 @@ def present_player_info():
     global player_db
 
     playerid = request.args.get("playerid")
-    followbutton = request.args.get("followbutton")
+    playerisfollowed = request.args.get("playerisfollowed")
+
     playerinfo = player_db[playerid][1]
 
     displayName = playerinfo["displayName"]
@@ -393,17 +406,27 @@ def present_player_info():
     displayplayerinfo = displayplayerinfo.replace("]","")
     displayplayerinfo = displayplayerinfo.replace(",","")
 
-    return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, followbutton = followbutton, playerid = playerid, displayName = displayName, firstName = firstName, singlesUtrDisplay = singlesUtrDisplay, doublesUtrDisplay = doublesUtrDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, jsonplayerinfo = json.dumps(playerinfo, indent=6), displayplayerinfo = displayplayerinfo)
+    return render_template('playerinfo.html', header = "Player Snapshot: " + displayName, playerisfollowed = playerisfollowed, playerid = playerid, displayName = displayName, firstName = firstName, singlesUtrDisplay = singlesUtrDisplay, doublesUtrDisplay = doublesUtrDisplay, threeMonthRating = threeMonthRating, trend = trend, gender = gender, ageRange = ageRange, dominantHand = dominantHand, backhand = backhand, homeClub = homeClub, jsonplayerinfo = json.dumps(playerinfo, indent=6), displayplayerinfo = displayplayerinfo)
 
 
 #=======================================================================
 # Add tracked player to list
 #=======================================================================
-@app.route('/trackplayer', methods=['GET'])
+@app.route('/followplayer', methods=['GET'])
 def track_player():
     playerid = request.args['playerid']
     print("calling add_followed_player...", playerid)
     return(add_followed_player_to_cookie(playerid))
+
+
+#=======================================================================
+# Delete cookie
+#=======================================================================
+@app.route('/deletecookie')
+def delete_cookie():
+    resp = make_response("<h1>cookie is deleted</h1>")
+    resp.delete_cookie('followedplayers')
+    return resp
 
 
 #=======================================================================
