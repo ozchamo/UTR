@@ -33,7 +33,9 @@ def retrieve_followed_players_from_cookie():
     followedplayers = []
 
     cookiedata = request.cookies.get('followedplayers')
-    print("COOKIE HAD", cookiedata)
+    print("COOKIE HAD", cookiedata, type(cookiedata))
+    for element in cookiedata:
+        print("ELEMENT IN COOKIE", element, type(element))
 
     if cookiedata != None:
         followedplayers = json.loads(cookiedata)
