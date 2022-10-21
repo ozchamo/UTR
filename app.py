@@ -30,20 +30,15 @@ def retrieve_token():
 
 
 def retrieve_followed_players_from_cookie():
-    followedplayers = []
 
     cookiedata = request.cookies.get('followedplayers')
-    print("COOKIE HAD", cookiedata, type(cookiedata))
-    for element in cookiedata:
-        print("ELEMENT IN COOKIE", element, type(element))
 
     if cookiedata != None:
-        followedplayers = json.loads(cookiedata)
-        print("COOKIE HAD", followedplayers)
+        print("COOKIE has",json.loads(cookiedata) )
+        return(json.loads(cookiedata))    
     else:
-        print("COOKIE HAD None")
-
-    return(followedplayers)
+        print("COOKIE is empty")
+        return([])
     
 
 def add_followed_player_to_cookie(playerid):
